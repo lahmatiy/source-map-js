@@ -1,0 +1,14 @@
+{
+  "name": "source-map-internal-benchmark",
+  "private": true,
+  "scripts": {
+    "build": "webpack"
+  },
+  "dependencies": {
+    "chalk": "^4.0.0",
+    "source-map-js": "npm:source-map-js",
+    "source-map-v6": "npm:source-map@0.6",
+    "source-map-v7": "npm:source-map@0.7",
+    "source-map-next": "npm:source-map@next"
+  }
+}
