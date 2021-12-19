@@ -5,7 +5,8 @@
  * http://opensource.org/licenses/BSD-3-Clause
  */
 
-var util = require('../lib/util');
+const assert = require('assert');
+const util = require('../lib/util');
 
 // This is a test mapping which maps functions from two different files
 // (one.js and two.js) to a minified generated source.
@@ -26,8 +27,9 @@ var util = require('../lib/util');
 //
 //   ONE.foo=function(a){return baz(a);};
 //   TWO.inc=function(a){return a+1;};
-exports.testGeneratedCode = " ONE.foo=function(a){return baz(a);};\n"+
-                            " TWO.inc=function(a){return a+1;};";
+exports.testGeneratedCode =
+  " ONE.foo=function(a){return baz(a);};\n"+
+  " TWO.inc=function(a){return a+1;};";
 exports.testMap = {
   version: 3,
   file: 'min.js',
@@ -255,22 +257,23 @@ function assertMapping(generatedLine, generatedColumn, originalSource,
                        originalLine, originalColumn, name, bias, map, assert,
                        dontTestGenerated, dontTestOriginal) {
   if (!dontTestOriginal) {
-    var origMapping = map.originalPositionFor({
+    const origMapping = map.originalPositionFor({
       line: generatedLine,
       column: generatedColumn,
       bias: bias
     });
-    assert.equal(origMapping.name, name,
-                 'Incorrect name, expected ' + JSON.stringify(name)
-                 + ', got ' + JSON.stringify(origMapping.name));
-    assert.equal(origMapping.line, originalLine,
-                 'Incorrect line, expected ' + JSON.stringify(originalLine)
-                 + ', got ' + JSON.stringify(origMapping.line));
-    assert.equal(origMapping.column, originalColumn,
-                 'Incorrect column, expected ' + JSON.stringify(originalColumn)
-                 + ', got ' + JSON.stringify(origMapping.column));
 
-    var expectedSource;
+    assert.equal(origMapping.name, name,
+      'Incorrect name, expected ' + JSON.stringify(name) +
+      ', got ' + JSON.stringify(origMapping.name));
+    assert.equal(origMapping.line, originalLine,
+      'Incorrect line, expected ' + JSON.stringify(originalLine) +
+      ', got ' + JSON.stringify(origMapping.line));
+    assert.equal(origMapping.column, originalColumn,
+      'Incorrect column, expected ' + JSON.stringify(originalColumn) +
+      ', got ' + JSON.stringify(origMapping.column));
+
+    let expectedSource;
 
     if (originalSource && map.sourceRoot && originalSource.indexOf(map.sourceRoot) === 0) {
       expectedSource = originalSource;
@@ -283,65 +286,41 @@ function assertMapping(generatedLine, generatedColumn, originalSource,
     }
 
     assert.equal(origMapping.source, expectedSource,
-                 'Incorrect source, expected ' + JSON.stringify(expectedSource)
-                 + ', got ' + JSON.stringify(origMapping.source));
+      'Incorrect source, expected ' + JSON.stringify(expectedSource) +
+      ', got ' + JSON.stringify(origMapping.source)
+    );
   }
 
   if (!dontTestGenerated) {
-    var genMapping = map.generatedPositionFor({
+    const genMapping = map.generatedPositionFor({
       source: originalSource,
       line: originalLine,
       column: originalColumn,
       bias: bias
     });
+
     assert.equal(genMapping.line, generatedLine,
-                 'Incorrect line, expected ' + JSON.stringify(generatedLine)
-                 + ', got ' + JSON.stringify(genMapping.line));
+      'Incorrect line, expected ' + JSON.stringify(generatedLine) +
+      ', got ' + JSON.stringify(genMapping.line)
+    );
     assert.equal(genMapping.column, generatedColumn,
-                 'Incorrect column, expected ' + JSON.stringify(generatedColumn)
-                 + ', got ' + JSON.stringify(genMapping.column));
+      'Incorrect column, expected ' + JSON.stringify(generatedColumn) +
+      ', got ' + JSON.stringify(genMapping.column)
+    );
   }
 }
 exports.assertMapping = assertMapping;
 
-function assertEqualMaps(assert, actualMap, expectedMap) {
+function assertEqualMaps(actualMap, expectedMap) {
   assert.equal(actualMap.version, expectedMap.version, "version mismatch");
   assert.equal(actualMap.file, expectedMap.file, "file mismatch");
-  assert.equal(actualMap.names.length,
-               expectedMap.names.length,
-               "names length mismatch: " +
-                 actualMap.names.join(", ") + " != " + expectedMap.names.join(", "));
-  for (var i = 0; i < actualMap.names.length; i++) {
-    assert.equal(actualMap.names[i],
-                 expectedMap.names[i],
-                 "names[" + i + "] mismatch: " +
-                   actualMap.names.join(", ") + " != " + expectedMap.names.join(", "));
-  }
-  assert.equal(actualMap.sources.length,
-               expectedMap.sources.length,
-               "sources length mismatch: " +
-                 actualMap.sources.join(", ") + " != " + expectedMap.sources.join(", "));
-  for (var i = 0; i < actualMap.sources.length; i++) {
-    assert.equal(actualMap.sources[i],
-                 expectedMap.sources[i],
-                 "sources[" + i + "] length mismatch: " +
-                 actualMap.sources.join(", ") + " != " + expectedMap.sources.join(", "));
-  }
-  assert.equal(actualMap.sourceRoot,
-               expectedMap.sourceRoot,
-               "sourceRoot mismatch: " +
-                 actualMap.sourceRoot + " != " + expectedMap.sourceRoot);
-  assert.equal(actualMap.mappings, expectedMap.mappings,
-               "mappings mismatch:\nActual:   " + actualMap.mappings + "\nExpected: " + expectedMap.mappings);
+  assert.deepStrictEqual(actualMap.names, expectedMap.names);
+  assert.deepStrictEqual(actualMap.sources, expectedMap.sources);
+  assert.equal(actualMap.sourceRoot, expectedMap.sourceRoot);
+  assert.equal(actualMap.mappings, expectedMap.mappings);
+
   if (actualMap.sourcesContent) {
-    assert.equal(actualMap.sourcesContent.length,
-                 expectedMap.sourcesContent.length,
-                 "sourcesContent length mismatch");
-    for (var i = 0; i < actualMap.sourcesContent.length; i++) {
-      assert.equal(actualMap.sourcesContent[i],
-                   expectedMap.sourcesContent[i],
-                   "sourcesContent[" + i + "] mismatch");
-    }
+    assert.deepStrictEqual(actualMap.sourcesContent, expectedMap.sourcesContent);
   }
 }
 exports.assertEqualMaps = assertEqualMaps;

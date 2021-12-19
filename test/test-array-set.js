@@ -5,39 +5,40 @@
  * http://opensource.org/licenses/BSD-3-Clause
  */
 
-var ArraySet = require('../lib/array-set').ArraySet;
+const assert = require('assert');
+const { ArraySet } = require('../lib/array-set');
 
 function makeTestSet() {
-  var set = new ArraySet();
-  for (var i = 0; i < 100; i++) {
+  const set = new ArraySet();
+  for (let i = 0; i < 100; i++) {
     set.add(String(i));
   }
   return set;
 }
 
-exports['test .has() membership'] = function (assert) {
-  var set = makeTestSet();
-  for (var i = 0; i < 100; i++) {
+it('test .has() membership', () => {
+  const set = makeTestSet();
+  for (let i = 0; i < 100; i++) {
     assert.ok(set.has(String(i)));
   }
-};
+});
 
-exports['test .indexOf() elements'] = function (assert) {
-  var set = makeTestSet();
-  for (var i = 0; i < 100; i++) {
+it('test .indexOf() elements', () => {
+  const set = makeTestSet();
+  for (let i = 0; i < 100; i++) {
     assert.strictEqual(set.indexOf(String(i)), i);
   }
-};
+});
 
-exports['test .at() indexing'] = function (assert) {
-  var set = makeTestSet();
-  for (var i = 0; i < 100; i++) {
+it('test .at() indexing', () => {
+  const set = makeTestSet();
+  for (let i = 0; i < 100; i++) {
     assert.strictEqual(set.at(i), String(i));
   }
-};
+});
 
-exports['test creating from an array'] = function (assert) {
-  var set = ArraySet.fromArray(['foo', 'bar', 'baz', 'quux', 'hasOwnProperty']);
+it('test creating from an array', () => {
+  const set = ArraySet.fromArray(['foo', 'bar', 'baz', 'quux', 'hasOwnProperty']);
 
   assert.ok(set.has('foo'));
   assert.ok(set.has('bar'));
@@ -54,33 +55,37 @@ exports['test creating from an array'] = function (assert) {
   assert.strictEqual(set.at(1), 'bar');
   assert.strictEqual(set.at(2), 'baz');
   assert.strictEqual(set.at(3), 'quux');
-};
+});
 
-exports['test that you can add __proto__; see github issue #30'] = function (assert) {
-  var set = new ArraySet();
+it('test that you can add __proto__; see github issue #30', () => {
+  const set = new ArraySet();
   set.add('__proto__');
   assert.ok(set.has('__proto__'));
   assert.strictEqual(set.at(0), '__proto__');
   assert.strictEqual(set.indexOf('__proto__'), 0);
-};
+});
 
-exports['test .fromArray() with duplicates'] = function (assert) {
-  var set = ArraySet.fromArray(['foo', 'foo']);
-  assert.ok(set.has('foo'));
-  assert.strictEqual(set.at(0), 'foo');
-  assert.strictEqual(set.indexOf('foo'), 0);
-  assert.strictEqual(set.toArray().length, 1);
+describe('test .fromArray() with duplicates', () => {
+  it('duplicates are not allowed', () => {
+    const set = ArraySet.fromArray(['foo', 'foo']);
+    assert.ok(set.has('foo'));
+    assert.strictEqual(set.at(0), 'foo');
+    assert.strictEqual(set.indexOf('foo'), 0);
+    assert.strictEqual(set.toArray().length, 1);
+  });
 
-  set = ArraySet.fromArray(['foo', 'foo'], true);
-  assert.ok(set.has('foo'));
-  assert.strictEqual(set.at(0), 'foo');
-  assert.strictEqual(set.at(1), 'foo');
-  assert.strictEqual(set.indexOf('foo'), 0);
-  assert.strictEqual(set.toArray().length, 2);
-};
+  it('duplicates are allowed', () => {
+    const set = ArraySet.fromArray(['foo', 'foo'], true);
+    assert.ok(set.has('foo'));
+    assert.strictEqual(set.at(0), 'foo');
+    assert.strictEqual(set.at(1), 'foo');
+    assert.strictEqual(set.indexOf('foo'), 0);
+    assert.strictEqual(set.toArray().length, 2);
+  });
+});
 
-exports['test .add() with duplicates'] = function (assert) {
-  var set = new ArraySet();
+it('test .add() with duplicates', () => {
+  const set = new ArraySet();
   set.add('foo');
 
   set.add('foo');
@@ -95,18 +100,18 @@ exports['test .add() with duplicates'] = function (assert) {
   assert.strictEqual(set.at(1), 'foo');
   assert.strictEqual(set.indexOf('foo'), 0);
   assert.strictEqual(set.toArray().length, 2);
-};
+});
 
-exports['test .size()'] = function (assert) {
-  var set = new ArraySet();
+it('test .size()', () => {
+  const set = new ArraySet();
   set.add('foo');
   set.add('bar');
   set.add('baz');
   assert.strictEqual(set.size(), 3);
-};
+});
 
-exports['test .size() with disallowed duplicates'] = function (assert) {
-  var set = new ArraySet();
+it('test .size() with disallowed duplicates', () => {
+  const set = new ArraySet();
 
   set.add('foo');
   set.add('foo');
@@ -118,10 +123,10 @@ exports['test .size() with disallowed duplicates'] = function (assert) {
   set.add('baz');
 
   assert.strictEqual(set.size(), 3);
-};
+});
 
-exports['test .size() with allowed duplicates'] = function (assert) {
-  var set = new ArraySet();
+it('test .size() with allowed duplicates', () => {
+  const set = new ArraySet();
 
   set.add('foo');
   set.add('foo', true);
@@ -133,4 +138,4 @@ exports['test .size() with allowed duplicates'] = function (assert) {
   set.add('baz', true);
 
   assert.strictEqual(set.size(), 3);
-};
+});

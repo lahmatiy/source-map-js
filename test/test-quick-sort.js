@@ -5,41 +5,42 @@
  * http://opensource.org/licenses/BSD-3-Clause
  */
 
-var quickSort = require('../lib/quick-sort').quickSort;
+const assert = require('assert');
+const { quickSort } = require('../lib/quick-sort');
 
 function numberCompare(a, b) {
   return a - b;
 }
 
-exports['test sorting sorted array'] = function (assert) {
-  var ary = [0,1,2,3,4,5,6,7,8,9];
+it('test sorting sorted array', () => {
+  const ary = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const quickSorted = ary.slice();
 
-  var quickSorted = ary.slice();
   quickSort(quickSorted, numberCompare);
 
   assert.equal(JSON.stringify(ary),
                JSON.stringify(quickSorted));
-};
+});
 
-exports['test sorting reverse-sorted array'] = function (assert) {
-  var ary = [9,8,7,6,5,4,3,2,1,0];
+it('test sorting reverse-sorted array', () => {
+  const ary = [9, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+  const quickSorted = ary.slice();
 
-  var quickSorted = ary.slice();
   quickSort(quickSorted, numberCompare);
 
   assert.equal(JSON.stringify(ary.sort(numberCompare)),
                JSON.stringify(quickSorted));
-};
+});
 
-exports['test sorting unsorted array'] = function (assert) {
-  var ary = [];
-  for (var i = 0; i < 10; i++) {
-    ary.push(Math.random());
+it('test sorting unsorted array', () => {
+  const ary = [];
+  for (let i = 0; i < 10; i++) {
+    ary.push(Math.random()); // FIXME: that's a flaky test
   }
 
-  var quickSorted = ary.slice();
+  const quickSorted = ary.slice();
   quickSort(quickSorted, numberCompare);
 
   assert.equal(JSON.stringify(ary.sort(numberCompare)),
                JSON.stringify(quickSorted));
-};
+});

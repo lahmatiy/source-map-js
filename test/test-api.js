@@ -5,10 +5,11 @@
  * http://opensource.org/licenses/BSD-3-Clause
  */
 
-var sourceMap = require('../source-map');
+const assert = require('assert');
+const sourceMap = require('../source-map');
 
-exports['test that the api is properly exposed in the top level'] = function (assert) {
+it('test that the api is properly exposed in the top level', () => {
   assert.equal(typeof sourceMap.SourceMapGenerator, "function");
   assert.equal(typeof sourceMap.SourceMapConsumer, "function");
   assert.equal(typeof sourceMap.SourceNode, "function");
-};
+});

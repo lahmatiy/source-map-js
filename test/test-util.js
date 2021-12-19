@@ -5,12 +5,14 @@
  * http://opensource.org/licenses/BSD-3-Clause
  */
 
-var libUtil = require('../lib/util');
+const assert = require('assert');
+const libUtil = require('../lib/util');
 
-exports['test urls'] = function (assert) {
-  var assertUrl = function (url) {
+it('test urls', () => {
+  const assertUrl = (url) => {
     assert.equal(url, libUtil.urlGenerate(libUtil.urlParse(url)));
   };
+
   assertUrl('http://');
   assertUrl('http://www.example.com');
   assertUrl('http://user:pass@www.example.com');
@@ -33,20 +35,20 @@ exports['test urls'] = function (assert) {
   assert.equal(libUtil.urlParse('/a'), null);
   assert.equal(libUtil.urlParse('data:foo,bar'), null);
 
-  var parsed = libUtil.urlParse('http://x-y.com/bar');
+  const parsed = libUtil.urlParse('http://x-y.com/bar');
   assert.equal(parsed.scheme, 'http');
   assert.equal(parsed.host, 'x-y.com');
   assert.equal(parsed.path, '/bar');
 
-  var webpackURL = 'webpack:///webpack/bootstrap 67e184f9679733298d44'
-  parsed = libUtil.urlParse(webpackURL);
-  assert.equal(parsed.scheme, 'webpack');
-  assert.equal(parsed.host, '');
-  assert.equal(parsed.path, '/webpack/bootstrap 67e184f9679733298d44');
-  assert.equal(webpackURL, libUtil.urlGenerate(parsed));
-};
+  const webpackURL = 'webpack:///webpack/bootstrap 67e184f9679733298d44'
+  const parsed2 = libUtil.urlParse(webpackURL);
+  assert.equal(parsed2.scheme, 'webpack');
+  assert.equal(parsed2.host, '');
+  assert.equal(parsed2.path, '/webpack/bootstrap 67e184f9679733298d44');
+  assert.equal(webpackURL, libUtil.urlGenerate(parsed2));
+});
 
-exports['test normalize()'] = function (assert) {
+it('test normalize()', () => {
   assert.equal(libUtil.normalize('/..'), '/');
   assert.equal(libUtil.normalize('/../'), '/');
   assert.equal(libUtil.normalize('/../../../..'), '/');
@@ -81,9 +83,9 @@ exports['test normalize()'] = function (assert) {
   assert.equal(libUtil.normalize('http://www.example.com'), 'http://www.example.com');
   assert.equal(libUtil.normalize('http://www.example.com/'), 'http://www.example.com/');
   assert.equal(libUtil.normalize('http://www.example.com/./..//a/b/c/.././d//'), 'http://www.example.com/a/b/d/');
-};
+});
 
-exports['test join()'] = function (assert) {
+it('test join()', () => {
   assert.equal(libUtil.join('a', 'b'), 'a/b');
   assert.equal(libUtil.join('a/', 'b'), 'a/b');
   assert.equal(libUtil.join('a//', 'b'), 'a/b');
@@ -205,10 +207,10 @@ exports['test join()'] = function (assert) {
 
   assert.equal(libUtil.join('http://www.example.com', '//foo.org/bar'), 'http://foo.org/bar');
   assert.equal(libUtil.join('//www.example.com', '//foo.org/bar'), '//foo.org/bar');
-};
+});
 
 // TODO Issue #128: Define and test this function properly.
-exports['test relative()'] = function (assert) {
+it('test relative()', () => {
   assert.equal(libUtil.relative('/the/root', '/the/root/one.js'), 'one.js');
   assert.equal(libUtil.relative('http://the/root', 'http://the/root/one.js'), 'one.js');
   assert.equal(libUtil.relative('/the/root', '/the/rootone.js'), '../rootone.js');
@@ -223,9 +225,9 @@ exports['test relative()'] = function (assert) {
 
   assert.equal(libUtil.relative('/', '/the/root/one.js'), 'the/root/one.js');
   assert.equal(libUtil.relative('/', 'the/root/one.js'), 'the/root/one.js');
-};
+});
 
-exports['test computeSourceURL'] = function (assert) {
+it('test computeSourceURL', () => {
   // Tests with sourceMapURL.
   assert.equal(libUtil.computeSourceURL('', 'src/test.js', 'http://example.com'),
                'http://example.com/src/test.js');
@@ -255,4 +257,4 @@ exports['test computeSourceURL'] = function (assert) {
   // spec-compliant algorithm.
   assert.equal(libUtil.computeSourceURL('http://example.com/dir', '/test.js'),
                'http://example.com/dir/test.js');
-};
+});
