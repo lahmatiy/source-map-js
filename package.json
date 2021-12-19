@@ -44,11 +44,11 @@
     "Nicolas Lalevée <nicolas.lalevee@hibnet.org>"
   ],
   "repository": "7rulnik/source-map",
-  "main": "./source-map.js",
+  "main": "./lib/index.js",
+  "typings": "source-map.d.ts",
   "files": [
-    "source-map.js",
     "source-map.d.ts",
-    "lib/"
+    "lib"
   ],
   "engines": {
     "node": ">=0.10.0"
@@ -67,6 +67,5 @@
   },
   "clean-publish": {
     "cleanDocs": true
-  },
-  "typings": "source-map.d.ts"
+  }
 }
