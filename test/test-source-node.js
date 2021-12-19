@@ -110,8 +110,6 @@ it('test .walk()', () => {
 });
 
 describe('test .replaceRight', () => {
-  let node;
-
   it('not nested', () => {
     const node = new SourceNode(null, null, null, 'hello world');
     node.replaceRight(/world/, 'universe');

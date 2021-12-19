@@ -622,7 +622,7 @@ describe('test allGeneratedPositionsFor for line', () => {
   });
 
   it('#2', () => {
-    mappings = map.allGeneratedPositionsFor({
+    const mappings = map.allGeneratedPositionsFor({
       line: 2,
       source: 'http://example.com/bar.coffee'
     });
