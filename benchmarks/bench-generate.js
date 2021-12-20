@@ -1,12 +1,14 @@
-const fs = require('fs');
-const path = require('path');
-const chalk = require('chalk');
-const self = require('../lib');
-const sourceMapJS = require('source-map-js');
-const sourceMapV6 = require('source-map-v6');
-const sourceMapV7 = require('source-map-v7');
-const sourceMapNext = require('source-map-next');
-const { runBenchmark, prettySize, outputToReadme, updateReadmeTable } = require('./benchmark-utils');
+import * as fs from 'fs';
+import * as path from 'path';
+import chalk from 'chalk';
+import esMain from 'es-main';
+import * as self from '../lib/index.js';
+import sourceMapJS from 'source-map-js';
+import sourceMapV6 from 'source-map-v6';
+import sourceMapV7 from 'source-map-v7';
+import sourceMapNext from 'source-map-next';
+import { runBenchmark, prettySize, outputToReadme, updateReadmeTable } from './utils/benchmark-utils.js';
+
 const benchmarkName = 'generate-source-map';
 const fixtures = [
     './fixtures/self.json',           // ~257Kb
@@ -14,6 +16,7 @@ const fixtures = [
     './fixtures/scalajs-runtime.json' // ~16Mb
 ];
 const fixtureIndex = process.argv[2] || 0;
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const filename = fixtureIndex in fixtures ? path.join(__dirname, fixtures[fixtureIndex]) : false;
 
 if (!filename) {
@@ -41,17 +44,17 @@ const libFactory = (lib) => {
     }
 };
 
-const tests = module.exports = {
+export const tests = {
+    'Current': libFactory(self),
     'source-map-js v1.0': libFactory(sourceMapJS),
     'source-map v0.6': libFactory(sourceMapV6),
     'source-map v0.7': libFactory(sourceMapV7),
-    'source-map next': libFactory(sourceMapNext),
-    'Current': libFactory(self)
+    'source-map next': libFactory(sourceMapNext)
 };
 
 Object.defineProperty(tests, '__getData', {
     value: () => {
-        const data = require(filename);
+        const data = JSON.parse(fs.readFileSync(filename));
         const consumer = new self.SourceMapConsumer(data);
         const mappings = [];
 
@@ -73,7 +76,7 @@ Object.defineProperty(tests, '__getData', {
     }
 });
 
-if (require.main === module) {
+if (esMain(import.meta)) {
     run();
 }
 
@@ -103,7 +106,7 @@ async function run() {
 
     const results = [];
     for (const name of Object.keys(tests)) {
-        results.push(await runBenchmark(name));
+        results.push(await runBenchmark(import.meta.url, name));
     }
 
     if (process.env.README) {

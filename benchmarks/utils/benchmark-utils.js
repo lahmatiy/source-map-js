@@ -1,13 +1,15 @@
-const fs = require('fs');
-const path = require('path');
-const { fork } = require('child_process');
-const chalk = require('chalk');
-const ANSI_REGEXP = /([\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><])/g;
+import { readFileSync, writeFileSync } from 'fs';
+import * as path from 'path';
+import { fork } from 'child_process';
+import chalk from 'chalk';
 
-function runBenchmark(name, argv = process.argv.slice(2)) {
+const ANSI_REGEXP = /([\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><])/g;
+const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+function runBenchmark(benchmark, name, argv = process.argv.slice(2)) {
     return new Promise((resolve, reject) => {
         const child = fork(__dirname + '/run-test.js', [
-            require.main.filename,
+            benchmark,
             name,
             ...argv
         ], {
@@ -272,7 +274,7 @@ function captureOutput(callback) {
 
 function replaceInReadme(start, end, replace) {
     const filename = path.join(__dirname, '/README.md');
-    const content = fs.readFileSync(filename, 'utf8');
+    const content = readFileSync(filename, 'utf8');
     const mstart = content.match(start);
 
     if (!mstart) {
@@ -290,7 +292,7 @@ function replaceInReadme(start, end, replace) {
 
     const endOffset = mend.index;
 
-    fs.writeFileSync(filename,
+    writeFileSync(filename,
         content.slice(0, startOffset) +
         (typeof replace === 'function' ? replace(content.slice(startOffset, endOffset)) : replace) +
         content.slice(endOffset), 'utf8');
@@ -351,7 +353,7 @@ function updateReadmeTable(benchmarkName, fixtureIndex, fixtures, results) {
     }
 }
 
-module.exports = {
+export {
     runBenchmark,
     benchmark,
     prettySize,
