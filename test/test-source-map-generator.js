@@ -1,7 +1,6 @@
 const assert = require('assert');
 const { SourceMapGenerator } = require('../lib/source-map-generator');
 const { SourceMapConsumer } = require('../lib/source-map-consumer');
-const { SourceNode } = require('../lib/source-node');
 const util = require('./util');
 
 it('no options', () => {
@@ -272,53 +271,32 @@ it('test .fromSourceMap with multiple sources where mappings refers only to sing
 });
 
 it('test applySourceMap', () => {
-  const node1 = new SourceNode(null, null, null, [
-    new SourceNode(2, 0, 'fileX', 'lineX2\n'),
-    'genA1\n',
-    new SourceNode(2, 0, 'fileY', 'lineY2\n'),
-    'genA2\n',
-    new SourceNode(1, 0, 'fileX', 'lineX1\n'),
-    'genA3\n',
-    new SourceNode(1, 0, 'fileY', 'lineY1\n')
-  ]);
-  let mapStep1 = node1.toStringWithSourceMap({
-    file: 'fileA'
-  }).map;
-  mapStep1.setSourceContent('fileX', 'lineX1\nlineX2\n');
-  mapStep1 = mapStep1.toJSON();
+  const mapStep1 = {
+    version: 3,
+    sources: ['fileX', 'fileY'],
+    names: [],
+    mappings: 'AACA;;ACAA;;ADDA;;ACAA',
+    file: 'fileA',
+    sourcesContent: ['lineX1\nlineX2\n', null]
+  };
 
-  const node2 = new SourceNode(null, null, null, [
-    'gen1\n',
-    new SourceNode(1, 0, 'fileA', 'lineA1\n'),
-    new SourceNode(2, 0, 'fileA', 'lineA2\n'),
-    new SourceNode(3, 0, 'fileA', 'lineA3\n'),
-    new SourceNode(4, 0, 'fileA', 'lineA4\n'),
-    new SourceNode(1, 0, 'fileB', 'lineB1\n'),
-    new SourceNode(2, 0, 'fileB', 'lineB2\n'),
-    'gen2\n'
-  ]);
-  let mapStep2 = node2.toStringWithSourceMap({
-    file: 'fileGen'
-  }).map;
-  mapStep2.setSourceContent('fileB', 'lineB1\nlineB2\n');
-  mapStep2 = mapStep2.toJSON();
+  const mapStep2 = {
+    version: 3,
+    sources: ['fileA', 'fileB'],
+    names: [],
+    mappings: ';AAAA;AACA;AACA;AACA;ACHA;AACA',
+    file: 'fileGen',
+    sourcesContent: [null, 'lineB1\nlineB2\n']
+  }
 
-  const node3 = new SourceNode(null, null, null, [
-    'gen1\n',
-    new SourceNode(2, 0, 'fileX', 'lineA1\n'),
-    new SourceNode(2, 0, 'fileA', 'lineA2\n'),
-    new SourceNode(2, 0, 'fileY', 'lineA3\n'),
-    new SourceNode(4, 0, 'fileA', 'lineA4\n'),
-    new SourceNode(1, 0, 'fileB', 'lineB1\n'),
-    new SourceNode(2, 0, 'fileB', 'lineB2\n'),
-    'gen2\n'
-  ]);
-  let expectedMap = node3.toStringWithSourceMap({
-    file: 'fileGen'
-  }).map;
-  expectedMap.setSourceContent('fileX', 'lineX1\nlineX2\n');
-  expectedMap.setSourceContent('fileB', 'lineB1\nlineB2\n');
-  expectedMap = expectedMap.toJSON();
+  const expectedMap = {
+    version: 3,
+    sources: [ 'fileX', 'fileA', 'fileY', 'fileB' ],
+    names: [],
+    mappings: ';AACA;ACAA;ACAA;ADEA;AEHA;AACA',
+    file: 'fileGen',
+    sourcesContent: [ 'lineX1\nlineX2\n', null, null, 'lineB1\nlineB2\n' ]
+  }
 
   // apply source map "mapStep1" to "mapStep2"
   const generator = SourceMapGenerator.fromSourceMap(new SourceMapConsumer(mapStep2));
