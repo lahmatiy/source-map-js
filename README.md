@@ -1,6 +1,9 @@
-# Source Map JS
+[![NPM version](https://img.shields.io/npm/v/source-map-js.svg)](https://www.npmjs.com/package/source-map-js)
+[![Build status](https://github.com/lahmatiy/source-map-js/actions/workflows/build.yml/badge.svg)](https://github.com/lahmatiy/source-map-js/actions/workflows/build.yml)
+[![Coverage Status](https://coveralls.io/repos/github/lahmatiy/source-map-js/badge.svg?branch=patch-0.6.1)](https://coveralls.io/github/lahmatiy/source-map-js?branch=patch-0.6.1)
+[![NPM Downloads](https://img.shields.io/npm/dm/source-map-js.svg)](https://www.npmjs.com/package/source-map-js)
 
-[![NPM](https://nodei.co/npm/source-map-js.png?downloads=true&downloadRank=true)](https://www.npmjs.com/package/source-map-js)
+# Source Map JS
 
 Difference between original [source-map](https://github.com/mozilla/source-map):
 
