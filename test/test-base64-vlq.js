@@ -1,12 +1,12 @@
-const assert = require('assert');
-const base64VLQ = require('../lib/base64-vlq');
+import { equal } from 'assert';
+import { encode, decode } from '../lib/base64-vlq.js';
 
 it('test normal encoding and decoding', () => {
   const result = {};
   for (let i = -255; i < 256; i++) {
-    const str = base64VLQ.encode(i);
-    base64VLQ.decode(str, 0, result);
-    assert.equal(result.value, i);
-    assert.equal(result.rest, str.length);
+    const str = encode(i);
+    decode(str, 0, result);
+    equal(result.value, i);
+    equal(result.rest, str.length);
   }
 });

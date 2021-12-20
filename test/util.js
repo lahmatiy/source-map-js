@@ -1,36 +1,10 @@
-/* -*- Mode: js; js-indent-level: 2; -*- */
-/*
- * Copyright 2011 Mozilla Foundation and contributors
- * Licensed under the New BSD license. See LICENSE or:
- * http://opensource.org/licenses/BSD-3-Clause
- */
+import { equal, deepStrictEqual } from 'assert';
+import { join } from '../lib/util.js';
 
-const assert = require('assert');
-const util = require('../lib/util');
-
-// This is a test mapping which maps functions from two different files
-// (one.js and two.js) to a minified generated source.
-//
-// Here is one.js:
-//
-//   ONE.foo = function (bar) {
-//     return baz(bar);
-//   };
-//
-// Here is two.js:
-//
-//   TWO.inc = function (n) {
-//     return n + 1;
-//   };
-//
-// And here is the generated code (min.js):
-//
-//   ONE.foo=function(a){return baz(a);};
-//   TWO.inc=function(a){return a+1;};
-exports.testGeneratedCode =
+export const testGeneratedCode =
   " ONE.foo=function(a){return baz(a);};\n"+
   " TWO.inc=function(a){return a+1;};";
-exports.testMap = {
+export const testMap = {
   version: 3,
   file: 'min.js',
   names: ['bar', 'baz', 'n'],
@@ -38,14 +12,14 @@ exports.testMap = {
   sourceRoot: '/the/root',
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 };
-exports.testMapNoSourceRoot = {
+export const testMapNoSourceRoot = {
   version: 3,
   file: 'min.js',
   names: ['bar', 'baz', 'n'],
   sources: ['one.js', 'two.js'],
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 };
-exports.testMapEmptySourceRoot = {
+export const testMapEmptySourceRoot = {
   version: 3,
   file: 'min.js',
   names: ['bar', 'baz', 'n'],
@@ -53,7 +27,7 @@ exports.testMapEmptySourceRoot = {
   sourceRoot: '',
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 };
-exports.testMapSingleSource = {
+export const testMapSingleSource = {
   version: 3,
   file: 'min.js',
   names: ['bar', 'baz'],
@@ -61,7 +35,7 @@ exports.testMapSingleSource = {
   sourceRoot: '',
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID'
 };
-exports.testMapEmptyMappings = {
+export const testMapEmptyMappings = {
   version: 3,
   file: 'min.js',
   names: [],
@@ -73,7 +47,7 @@ exports.testMapEmptyMappings = {
   sourceRoot: '',
   mappings: ''
 };
-exports.testMapEmptyMappingsRelativeSources = {
+export const testMapEmptyMappingsRelativeSources = {
   version: 3,
   file: 'min.js',
   names: [],
@@ -85,7 +59,7 @@ exports.testMapEmptyMappingsRelativeSources = {
   sourceRoot: '/the/root',
   mappings: ''
 };
-exports.testMapEmptyMappingsRelativeSources_generatedExpected = {
+export const testMapEmptyMappingsRelativeSources_generatedExpected = {
   version: 3,
   file: 'min.js',
   names: [],
@@ -97,7 +71,7 @@ exports.testMapEmptyMappingsRelativeSources_generatedExpected = {
   sourceRoot: '/the/root',
   mappings: ''
 };
-exports.testMapMultiSourcesMappingRefersSingleSourceOnly = {
+export const testMapMultiSourcesMappingRefersSingleSourceOnly = {
     version: 3,
     file: 'min.js',
     names: ['bar', 'baz'],
@@ -105,8 +79,7 @@ exports.testMapMultiSourcesMappingRefersSingleSourceOnly = {
     sourceRoot: '',
     mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID'
 };
-// This mapping is identical to above, but uses the indexed format instead.
-exports.indexedTestMap = {
+export const indexedTestMap = {
   version: 3,
   file: 'min.js',
   sections: [
@@ -159,7 +132,7 @@ exports.indexedTestMap = {
     }
   ]
 };
-exports.indexedTestMapDifferentSourceRoots = {
+export const indexedTestMapDifferentSourceRoots = {
   version: 3,
   file: 'min.js',
   sections: [
@@ -212,7 +185,7 @@ exports.indexedTestMapDifferentSourceRoots = {
     }
   ]
 };
-exports.testMapWithSourcesContent = {
+export const testMapWithSourcesContent = {
   version: 3,
   file: 'min.js',
   names: ['bar', 'baz', 'n'],
@@ -228,7 +201,7 @@ exports.testMapWithSourcesContent = {
   sourceRoot: '/the/root',
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 };
-exports.testMapRelativeSources = {
+export const testMapRelativeSources = {
   version: 3,
   file: 'min.js',
   names: ['bar', 'baz', 'n'],
@@ -244,7 +217,7 @@ exports.testMapRelativeSources = {
   sourceRoot: '/the/root',
   mappings: 'CAAC,IAAI,IAAM,SAAUA,GAClB,OAAOC,IAAID;CCDb,IAAI,IAAM,SAAUE,GAClB,OAAOA'
 };
-exports.emptyMap = {
+export const emptyMap = {
   version: 3,
   file: 'min.js',
   names: [],
@@ -253,9 +226,18 @@ exports.emptyMap = {
 };
 
 
-function assertMapping(generatedLine, generatedColumn, originalSource,
-                       originalLine, originalColumn, name, bias, map, assert,
-                       dontTestGenerated, dontTestOriginal) {
+function assertMapping(
+  generatedLine,
+  generatedColumn,
+  originalSource,
+  originalLine,
+  originalColumn,
+  name,
+  bias,
+  map,
+  dontTestGenerated,
+  dontTestOriginal
+) {
   if (!dontTestOriginal) {
     const origMapping = map.originalPositionFor({
       line: generatedLine,
@@ -263,13 +245,13 @@ function assertMapping(generatedLine, generatedColumn, originalSource,
       bias: bias
     });
 
-    assert.equal(origMapping.name, name,
+    equal(origMapping.name, name,
       'Incorrect name, expected ' + JSON.stringify(name) +
       ', got ' + JSON.stringify(origMapping.name));
-    assert.equal(origMapping.line, originalLine,
+    equal(origMapping.line, originalLine,
       'Incorrect line, expected ' + JSON.stringify(originalLine) +
       ', got ' + JSON.stringify(origMapping.line));
-    assert.equal(origMapping.column, originalColumn,
+    equal(origMapping.column, originalColumn,
       'Incorrect column, expected ' + JSON.stringify(originalColumn) +
       ', got ' + JSON.stringify(origMapping.column));
 
@@ -279,13 +261,13 @@ function assertMapping(generatedLine, generatedColumn, originalSource,
       expectedSource = originalSource;
     } else if (originalSource) {
       expectedSource = map.sourceRoot
-        ? util.join(map.sourceRoot, originalSource)
+        ? join(map.sourceRoot, originalSource)
         : originalSource;
     } else {
       expectedSource = null;
     }
 
-    assert.equal(origMapping.source, expectedSource,
+    equal(origMapping.source, expectedSource,
       'Incorrect source, expected ' + JSON.stringify(expectedSource) +
       ', got ' + JSON.stringify(origMapping.source)
     );
@@ -299,28 +281,30 @@ function assertMapping(generatedLine, generatedColumn, originalSource,
       bias: bias
     });
 
-    assert.equal(genMapping.line, generatedLine,
+    equal(genMapping.line, generatedLine,
       'Incorrect line, expected ' + JSON.stringify(generatedLine) +
       ', got ' + JSON.stringify(genMapping.line)
     );
-    assert.equal(genMapping.column, generatedColumn,
+    equal(genMapping.column, generatedColumn,
       'Incorrect column, expected ' + JSON.stringify(generatedColumn) +
       ', got ' + JSON.stringify(genMapping.column)
     );
   }
 }
-exports.assertMapping = assertMapping;
+const _assertMapping = assertMapping;
+export { _assertMapping as assertMapping };
 
 function assertEqualMaps(actualMap, expectedMap) {
-  assert.equal(actualMap.version, expectedMap.version, "version mismatch");
-  assert.equal(actualMap.file, expectedMap.file, "file mismatch");
-  assert.deepStrictEqual(actualMap.names, expectedMap.names);
-  assert.deepStrictEqual(actualMap.sources, expectedMap.sources);
-  assert.equal(actualMap.sourceRoot, expectedMap.sourceRoot);
-  assert.equal(actualMap.mappings, expectedMap.mappings);
+  equal(actualMap.version, expectedMap.version, "version mismatch");
+  equal(actualMap.file, expectedMap.file, "file mismatch");
+  deepStrictEqual(actualMap.names, expectedMap.names);
+  deepStrictEqual(actualMap.sources, expectedMap.sources);
+  equal(actualMap.sourceRoot, expectedMap.sourceRoot);
+  equal(actualMap.mappings, expectedMap.mappings);
 
   if (actualMap.sourcesContent) {
-    assert.deepStrictEqual(actualMap.sourcesContent, expectedMap.sourcesContent);
+    deepStrictEqual(actualMap.sourcesContent, expectedMap.sourcesContent);
   }
 }
-exports.assertEqualMaps = assertEqualMaps;
+const _assertEqualMaps = assertEqualMaps;
+export { _assertEqualMaps as assertEqualMaps };

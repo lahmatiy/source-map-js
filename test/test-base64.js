@@ -1,21 +1,21 @@
-const assert = require('assert');
-const base64 = require('../lib/base64');
+import { throws, equal } from 'assert';
+import { encodeBase64, decodeBase64 } from '../lib/base64.js';
 
 it('test out of range encoding', () => {
-  assert.throws(() => {
-    base64.encode(-1);
+  throws(() => {
+    encodeBase64(-1);
   });
-  assert.throws(() => {
-    base64.encode(64);
+  throws(() => {
+    encodeBase64(64);
   });
 });
 
 it('test out of range decoding', () => {
-  assert.equal(base64.decode('='.charCodeAt(0)), -1);
+  equal(decodeBase64('='.charCodeAt(0)), -1);
 });
 
 it('test normal encoding and decoding', () => {
   for (let i = 0; i < 64; i++) {
-    assert.equal(base64.decode(base64.encode(i).charCodeAt(0)), i);
+    equal(decodeBase64(encodeBase64(i).charCodeAt(0)), i);
   }
 });

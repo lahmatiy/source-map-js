@@ -1,33 +1,36 @@
-const assert = require('assert');
-const util = require("./util");
-const {
-  SourceMapConsumer,
-  IndexedSourceMapConsumer,
-  BasicSourceMapConsumer
-} = require('../lib/source-map-consumer');
-const {
-  SourceMapGenerator
-} = require('../lib/source-map-generator');
+import { doesNotThrow, ok, equal, throws } from 'assert';
+import { SourceMapConsumer, IndexedSourceMapConsumer, BasicSourceMapConsumer } from '../lib/source-map-consumer.js';
+import { SourceMapGenerator } from '../lib/source-map-generator.js';
+import {
+  testMap,
+  indexedTestMap,
+  indexedTestMapDifferentSourceRoots,
+  testMapNoSourceRoot,
+  testMapEmptySourceRoot,
+  assertMapping,
+  testMapWithSourcesContent,
+  testMapRelativeSources
+} from "./util.js";
 
 it('test that we can instantiate with a string or an object', () => {
-  assert.doesNotThrow(() => {
-    new SourceMapConsumer(util.testMap);
+  doesNotThrow(() => {
+    new SourceMapConsumer(testMap);
   });
-  assert.doesNotThrow(() => {
-    new SourceMapConsumer(JSON.stringify(util.testMap));
+  doesNotThrow(() => {
+    new SourceMapConsumer(JSON.stringify(testMap));
   });
 });
 
 it('test that the object returned from new SourceMapConsumer inherits from SourceMapConsumer', () => {
-  assert.ok(new SourceMapConsumer(util.testMap) instanceof SourceMapConsumer);
+  ok(new SourceMapConsumer(testMap) instanceof SourceMapConsumer);
 });
 
 it('test that a BasicSourceMapConsumer is returned for sourcemaps without sections', () => {
-  assert.ok(new SourceMapConsumer(util.testMap) instanceof BasicSourceMapConsumer);
+  ok(new SourceMapConsumer(testMap) instanceof BasicSourceMapConsumer);
 });
 
 it('test that an IndexedSourceMapConsumer is returned for sourcemaps with sections', () => {
-  assert.ok(new SourceMapConsumer(util.indexedTestMap) instanceof IndexedSourceMapConsumer);
+  ok(new SourceMapConsumer(indexedTestMap) instanceof IndexedSourceMapConsumer);
 });
 
 // FIXME: split into separate tests
@@ -35,35 +38,35 @@ it('test that the `sources` field has the original sources', () => {
   let map;
   let sources;
 
-  map = new SourceMapConsumer(util.testMap);
+  map = new SourceMapConsumer(testMap);
   sources = map.sources;
-  assert.equal(sources[0], '/the/root/one.js');
-  assert.equal(sources[1], '/the/root/two.js');
-  assert.equal(sources.length, 2);
+  equal(sources[0], '/the/root/one.js');
+  equal(sources[1], '/the/root/two.js');
+  equal(sources.length, 2);
 
-  map = new SourceMapConsumer(util.indexedTestMap);
+  map = new SourceMapConsumer(indexedTestMap);
   sources = map.sources;
-  assert.equal(sources[0], '/the/root/one.js');
-  assert.equal(sources[1], '/the/root/two.js');
-  assert.equal(sources.length, 2);
+  equal(sources[0], '/the/root/one.js');
+  equal(sources[1], '/the/root/two.js');
+  equal(sources.length, 2);
 
-  map = new SourceMapConsumer(util.indexedTestMapDifferentSourceRoots);
+  map = new SourceMapConsumer(indexedTestMapDifferentSourceRoots);
   sources = map.sources;
-  assert.equal(sources[0], '/the/root/one.js');
-  assert.equal(sources[1], '/different/root/two.js');
-  assert.equal(sources.length, 2);
+  equal(sources[0], '/the/root/one.js');
+  equal(sources[1], '/different/root/two.js');
+  equal(sources.length, 2);
 
-  map = new SourceMapConsumer(util.testMapNoSourceRoot);
+  map = new SourceMapConsumer(testMapNoSourceRoot);
   sources = map.sources;
-  assert.equal(sources[0], 'one.js');
-  assert.equal(sources[1], 'two.js');
-  assert.equal(sources.length, 2);
+  equal(sources[0], 'one.js');
+  equal(sources[1], 'two.js');
+  equal(sources.length, 2);
 
-  map = new SourceMapConsumer(util.testMapEmptySourceRoot);
+  map = new SourceMapConsumer(testMapEmptySourceRoot);
   sources = map.sources;
-  assert.equal(sources[0], 'one.js');
-  assert.equal(sources[1], 'two.js');
-  assert.equal(sources.length, 2);
+  equal(sources[0], 'one.js');
+  equal(sources[1], 'two.js');
+  equal(sources.length, 2);
 });
 
 // FIXME: split into separate tests
@@ -71,135 +74,135 @@ it('test that the source root is reflected in a mapping\'s source field', () => 
   let map;
   let mapping;
 
-  map = new SourceMapConsumer(util.testMap);
+  map = new SourceMapConsumer(testMap);
 
   mapping = map.originalPositionFor({
     line: 2,
     column: 1
   });
-  assert.equal(mapping.source, '/the/root/two.js');
+  equal(mapping.source, '/the/root/two.js');
 
   mapping = map.originalPositionFor({
     line: 1,
     column: 1
   });
-  assert.equal(mapping.source, '/the/root/one.js');
+  equal(mapping.source, '/the/root/one.js');
 
 
-  map = new SourceMapConsumer(util.testMapNoSourceRoot);
+  map = new SourceMapConsumer(testMapNoSourceRoot);
 
   mapping = map.originalPositionFor({
     line: 2,
     column: 1
   });
-  assert.equal(mapping.source, 'two.js');
+  equal(mapping.source, 'two.js');
 
   mapping = map.originalPositionFor({
     line: 1,
     column: 1
   });
-  assert.equal(mapping.source, 'one.js');
+  equal(mapping.source, 'one.js');
 
 
-  map = new SourceMapConsumer(util.testMapEmptySourceRoot);
+  map = new SourceMapConsumer(testMapEmptySourceRoot);
 
   mapping = map.originalPositionFor({
     line: 2,
     column: 1
   });
-  assert.equal(mapping.source, 'two.js');
+  equal(mapping.source, 'two.js');
 
   mapping = map.originalPositionFor({
     line: 1,
     column: 1
   });
-  assert.equal(mapping.source, 'one.js');
+  equal(mapping.source, 'one.js');
 });
 
 it('test mapping tokens back exactly', () => {
-  const map = new SourceMapConsumer(util.testMap);
+  const map = new SourceMapConsumer(testMap);
 
-  util.assertMapping(1, 1, '/the/root/one.js', 1, 1, null, null, map, assert);
-  util.assertMapping(1, 5, '/the/root/one.js', 1, 5, null, null, map, assert);
-  util.assertMapping(1, 9, '/the/root/one.js', 1, 11, null, null, map, assert);
-  util.assertMapping(1, 18, '/the/root/one.js', 1, 21, 'bar', null, map, assert);
-  util.assertMapping(1, 21, '/the/root/one.js', 2, 3, null, null, map, assert);
-  util.assertMapping(1, 28, '/the/root/one.js', 2, 10, 'baz', null, map, assert);
-  util.assertMapping(1, 32, '/the/root/one.js', 2, 14, 'bar', null, map, assert);
+  assertMapping(1, 1, '/the/root/one.js', 1, 1, null, null, map);
+  assertMapping(1, 5, '/the/root/one.js', 1, 5, null, null, map);
+  assertMapping(1, 9, '/the/root/one.js', 1, 11, null, null, map);
+  assertMapping(1, 18, '/the/root/one.js', 1, 21, 'bar', null, map);
+  assertMapping(1, 21, '/the/root/one.js', 2, 3, null, null, map);
+  assertMapping(1, 28, '/the/root/one.js', 2, 10, 'baz', null, map);
+  assertMapping(1, 32, '/the/root/one.js', 2, 14, 'bar', null, map);
 
-  util.assertMapping(2, 1, '/the/root/two.js', 1, 1, null, null, map, assert);
-  util.assertMapping(2, 5, '/the/root/two.js', 1, 5, null, null, map, assert);
-  util.assertMapping(2, 9, '/the/root/two.js', 1, 11, null, null, map, assert);
-  util.assertMapping(2, 18, '/the/root/two.js', 1, 21, 'n', null, map, assert);
-  util.assertMapping(2, 21, '/the/root/two.js', 2, 3, null, null, map, assert);
-  util.assertMapping(2, 28, '/the/root/two.js', 2, 10, 'n', null, map, assert);
+  assertMapping(2, 1, '/the/root/two.js', 1, 1, null, null, map);
+  assertMapping(2, 5, '/the/root/two.js', 1, 5, null, null, map);
+  assertMapping(2, 9, '/the/root/two.js', 1, 11, null, null, map);
+  assertMapping(2, 18, '/the/root/two.js', 1, 21, 'n', null, map);
+  assertMapping(2, 21, '/the/root/two.js', 2, 3, null, null, map);
+  assertMapping(2, 28, '/the/root/two.js', 2, 10, 'n', null, map);
 });
 
 it('test mapping tokens back exactly in indexed source map', () => {
-  const map = new SourceMapConsumer(util.indexedTestMap);
+  const map = new SourceMapConsumer(indexedTestMap);
 
-  util.assertMapping(1, 1, '/the/root/one.js', 1, 1, null, null, map, assert);
-  util.assertMapping(1, 5, '/the/root/one.js', 1, 5, null, null, map, assert);
-  util.assertMapping(1, 9, '/the/root/one.js', 1, 11, null, null, map, assert);
-  util.assertMapping(1, 18, '/the/root/one.js', 1, 21, 'bar', null, map, assert);
-  util.assertMapping(1, 21, '/the/root/one.js', 2, 3, null, null, map, assert);
-  util.assertMapping(1, 28, '/the/root/one.js', 2, 10, 'baz', null, map, assert);
-  util.assertMapping(1, 32, '/the/root/one.js', 2, 14, 'bar', null, map, assert);
+  assertMapping(1, 1, '/the/root/one.js', 1, 1, null, null, map);
+  assertMapping(1, 5, '/the/root/one.js', 1, 5, null, null, map);
+  assertMapping(1, 9, '/the/root/one.js', 1, 11, null, null, map);
+  assertMapping(1, 18, '/the/root/one.js', 1, 21, 'bar', null, map);
+  assertMapping(1, 21, '/the/root/one.js', 2, 3, null, null, map);
+  assertMapping(1, 28, '/the/root/one.js', 2, 10, 'baz', null, map);
+  assertMapping(1, 32, '/the/root/one.js', 2, 14, 'bar', null, map);
 
-  util.assertMapping(2, 1, '/the/root/two.js', 1, 1, null, null, map, assert);
-  util.assertMapping(2, 5, '/the/root/two.js', 1, 5, null, null, map, assert);
-  util.assertMapping(2, 9, '/the/root/two.js', 1, 11, null, null, map, assert);
-  util.assertMapping(2, 18, '/the/root/two.js', 1, 21, 'n', null, map, assert);
-  util.assertMapping(2, 21, '/the/root/two.js', 2, 3, null, null, map, assert);
-  util.assertMapping(2, 28, '/the/root/two.js', 2, 10, 'n', null, map, assert);
+  assertMapping(2, 1, '/the/root/two.js', 1, 1, null, null, map);
+  assertMapping(2, 5, '/the/root/two.js', 1, 5, null, null, map);
+  assertMapping(2, 9, '/the/root/two.js', 1, 11, null, null, map);
+  assertMapping(2, 18, '/the/root/two.js', 1, 21, 'n', null, map);
+  assertMapping(2, 21, '/the/root/two.js', 2, 3, null, null, map);
+  assertMapping(2, 28, '/the/root/two.js', 2, 10, 'n', null, map);
 });
 
 it('test mapping tokens fuzzy', () => {
-  const map = new SourceMapConsumer(util.testMap);
+  const map = new SourceMapConsumer(testMap);
 
   // Finding original positions with default (glb) bias.
-  util.assertMapping(1, 20, '/the/root/one.js', 1, 21, 'bar', null, map, assert, true);
-  util.assertMapping(1, 30, '/the/root/one.js', 2, 10, 'baz', null, map, assert, true);
-  util.assertMapping(2, 12, '/the/root/two.js', 1, 11, null, null, map, assert, true);
+  assertMapping(1, 20, '/the/root/one.js', 1, 21, 'bar', null, map, true);
+  assertMapping(1, 30, '/the/root/one.js', 2, 10, 'baz', null, map, true);
+  assertMapping(2, 12, '/the/root/two.js', 1, 11, null, null, map, true);
 
   // Finding original positions with lub bias.
-  util.assertMapping(1, 16, '/the/root/one.js', 1, 21, 'bar', SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, true);
-  util.assertMapping(1, 26, '/the/root/one.js', 2, 10, 'baz', SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, true);
-  util.assertMapping(2, 6, '/the/root/two.js', 1, 11, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, true);
+  assertMapping(1, 16, '/the/root/one.js', 1, 21, 'bar', SourceMapConsumer.LEAST_UPPER_BOUND, map, true);
+  assertMapping(1, 26, '/the/root/one.js', 2, 10, 'baz', SourceMapConsumer.LEAST_UPPER_BOUND, map, true);
+  assertMapping(2, 6, '/the/root/two.js', 1, 11, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, true);
 
   // Finding generated positions with default (glb) bias.
-  util.assertMapping(1, 18, '/the/root/one.js', 1, 22, 'bar', null, map, assert, null, true);
-  util.assertMapping(1, 28, '/the/root/one.js', 2, 13, 'baz', null, map, assert, null, true);
-  util.assertMapping(2, 9, '/the/root/two.js', 1, 16, null, null, map, assert, null, true);
+  assertMapping(1, 18, '/the/root/one.js', 1, 22, 'bar', null, map, null, true);
+  assertMapping(1, 28, '/the/root/one.js', 2, 13, 'baz', null, map, null, true);
+  assertMapping(2, 9, '/the/root/two.js', 1, 16, null, null, map, null, true);
 
   // Finding generated positions with lub bias.
-  util.assertMapping(1, 18, '/the/root/one.js', 1, 20, 'bar', SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, null, true);
-  util.assertMapping(1, 28, '/the/root/one.js', 2, 7, 'baz', SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, null, true);
-  util.assertMapping(2, 9, '/the/root/two.js', 1, 6, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, null, true);
+  assertMapping(1, 18, '/the/root/one.js', 1, 20, 'bar', SourceMapConsumer.LEAST_UPPER_BOUND, map, null, true);
+  assertMapping(1, 28, '/the/root/one.js', 2, 7, 'baz', SourceMapConsumer.LEAST_UPPER_BOUND, map, null, true);
+  assertMapping(2, 9, '/the/root/two.js', 1, 6, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, null, true);
 });
 
 it('test mapping tokens fuzzy in indexed source map', () => {
-  const map = new SourceMapConsumer(util.indexedTestMap);
+  const map = new SourceMapConsumer(indexedTestMap);
 
   // Finding original positions with default (glb) bias.
-  util.assertMapping(1, 20, '/the/root/one.js', 1, 21, 'bar', null, map, assert, true);
-  util.assertMapping(1, 30, '/the/root/one.js', 2, 10, 'baz', null, map, assert, true);
-  util.assertMapping(2, 12, '/the/root/two.js', 1, 11, null, null, map, assert, true);
+  assertMapping(1, 20, '/the/root/one.js', 1, 21, 'bar', null, map, true);
+  assertMapping(1, 30, '/the/root/one.js', 2, 10, 'baz', null, map, true);
+  assertMapping(2, 12, '/the/root/two.js', 1, 11, null, null, map, true);
 
   // Finding original positions with lub bias.
-  util.assertMapping(1, 16, '/the/root/one.js', 1, 21, 'bar', SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, true);
-  util.assertMapping(1, 26, '/the/root/one.js', 2, 10, 'baz', SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, true);
-  util.assertMapping(2, 6, '/the/root/two.js', 1, 11, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, true);
+  assertMapping(1, 16, '/the/root/one.js', 1, 21, 'bar', SourceMapConsumer.LEAST_UPPER_BOUND, map, true);
+  assertMapping(1, 26, '/the/root/one.js', 2, 10, 'baz', SourceMapConsumer.LEAST_UPPER_BOUND, map, true);
+  assertMapping(2, 6, '/the/root/two.js', 1, 11, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, true);
 
   // Finding generated positions with default (glb) bias.
-  util.assertMapping(1, 18, '/the/root/one.js', 1, 22, 'bar', null, map, assert, null, true);
-  util.assertMapping(1, 28, '/the/root/one.js', 2, 13, 'baz', null, map, assert, null, true);
-  util.assertMapping(2, 9, '/the/root/two.js', 1, 16, null, null, map, assert, null, true);
+  assertMapping(1, 18, '/the/root/one.js', 1, 22, 'bar', null, map, null, true);
+  assertMapping(1, 28, '/the/root/one.js', 2, 13, 'baz', null, map, null, true);
+  assertMapping(2, 9, '/the/root/two.js', 1, 16, null, null, map, null, true);
 
   // Finding generated positions with lub bias.
-  util.assertMapping(1, 18, '/the/root/one.js', 1, 20, 'bar', SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, null, true);
-  util.assertMapping(1, 28, '/the/root/one.js', 2, 7, 'baz', SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, null, true);
-  util.assertMapping(2, 9, '/the/root/two.js', 1, 6, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, null, true);
+  assertMapping(1, 18, '/the/root/one.js', 1, 20, 'bar', SourceMapConsumer.LEAST_UPPER_BOUND, map, null, true);
+  assertMapping(1, 28, '/the/root/one.js', 2, 7, 'baz', SourceMapConsumer.LEAST_UPPER_BOUND, map, null, true);
+  assertMapping(2, 9, '/the/root/two.js', 1, 6, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, null, true);
 });
 
 it('test mappings and end of lines', () => {
@@ -225,18 +228,18 @@ it('test mappings and end of lines', () => {
   const map = SourceMapConsumer.fromSourceMap(smg);
 
   // When finding original positions, mappings end at the end of the line.
-  util.assertMapping(2, 1, null, null, null, null, null, map, assert, true)
+  assertMapping(2, 1, null, null, null, null, null, map, true)
 
   // When finding generated positions, mappings do not end at the end of the line.
-  util.assertMapping(1, 1, 'bar.js', 2, 1, null, null, map, assert, null, true);
+  assertMapping(1, 1, 'bar.js', 2, 1, null, null, map, null, true);
 
   // When finding generated positions with, mappings end at the end of the source.
-  util.assertMapping(null, null, 'bar.js', 3, 1, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, assert, null, true);
+  assertMapping(null, null, 'bar.js', 3, 1, null, SourceMapConsumer.LEAST_UPPER_BOUND, map, null, true);
 });
 
 it('test creating source map consumers with )]}\' prefix', () => {
-  assert.doesNotThrow(function () {
-    new SourceMapConsumer(")]}'\n" + JSON.stringify(util.testMap));
+  doesNotThrow(function () {
+    new SourceMapConsumer(")]}'\n" + JSON.stringify(testMap));
   });
 });
 
@@ -244,16 +247,16 @@ it('test creating source map consumers with )]}\' prefix', () => {
 it('test eachMapping', () => {
   let map;
 
-  map = new SourceMapConsumer(util.testMap);
+  map = new SourceMapConsumer(testMap);
   let previousLine = -Infinity;
   let previousColumn = -Infinity;
   map.eachMapping((mapping) => {
-    assert.ok(mapping.generatedLine >= previousLine);
+    ok(mapping.generatedLine >= previousLine);
 
-    assert.ok(mapping.source === '/the/root/one.js' || mapping.source === '/the/root/two.js');
+    ok(mapping.source === '/the/root/one.js' || mapping.source === '/the/root/two.js');
 
     if (mapping.generatedLine === previousLine) {
-      assert.ok(mapping.generatedColumn >= previousColumn);
+      ok(mapping.generatedColumn >= previousColumn);
       previousColumn = mapping.generatedColumn;
     }
     else {
@@ -262,30 +265,30 @@ it('test eachMapping', () => {
     }
   });
 
-  map = new SourceMapConsumer(util.testMapNoSourceRoot);
+  map = new SourceMapConsumer(testMapNoSourceRoot);
   map.eachMapping((mapping) => {
-    assert.ok(mapping.source === 'one.js' || mapping.source === 'two.js');
+    ok(mapping.source === 'one.js' || mapping.source === 'two.js');
   });
 
-  map = new SourceMapConsumer(util.testMapEmptySourceRoot);
+  map = new SourceMapConsumer(testMapEmptySourceRoot);
   map.eachMapping((mapping) => {
-    assert.ok(mapping.source === 'one.js' || mapping.source === 'two.js');
+    ok(mapping.source === 'one.js' || mapping.source === 'two.js');
   });
 });
 
 it('test eachMapping for indexed source maps', () => {
-  const map = new SourceMapConsumer(util.indexedTestMap);
+  const map = new SourceMapConsumer(indexedTestMap);
   let previousLine = -Infinity;
   let previousColumn = -Infinity;
   map.eachMapping((mapping) => {
-    assert.ok(mapping.generatedLine >= previousLine);
+    ok(mapping.generatedLine >= previousLine);
 
     if (mapping.source) {
-      assert.equal(mapping.source.indexOf(util.testMap.sourceRoot), 0);
+      equal(mapping.source.indexOf(testMap.sourceRoot), 0);
     }
 
     if (mapping.generatedLine === previousLine) {
-      assert.ok(mapping.generatedColumn >= previousColumn);
+      ok(mapping.generatedColumn >= previousColumn);
       previousColumn = mapping.generatedColumn;
     }
     else {
@@ -297,18 +300,18 @@ it('test eachMapping for indexed source maps', () => {
 
 
 it('test iterating over mappings in a different order', () => {
-  const map = new SourceMapConsumer(util.testMap);
+  const map = new SourceMapConsumer(testMap);
   let previousLine = -Infinity;
   let previousColumn = -Infinity;
   let previousSource = "";
   map.eachMapping((mapping) => {
-    assert.ok(mapping.source >= previousSource);
+    ok(mapping.source >= previousSource);
 
     if (mapping.source === previousSource) {
-      assert.ok(mapping.originalLine >= previousLine);
+      ok(mapping.originalLine >= previousLine);
 
       if (mapping.originalLine === previousLine) {
-        assert.ok(mapping.originalColumn >= previousColumn);
+        ok(mapping.originalColumn >= previousColumn);
         previousColumn = mapping.originalColumn;
       }
       else {
@@ -325,18 +328,18 @@ it('test iterating over mappings in a different order', () => {
 });
 
 it('test iterating over mappings in a different order in indexed source maps', () => {
-  const map = new SourceMapConsumer(util.indexedTestMap);
+  const map = new SourceMapConsumer(indexedTestMap);
   let previousLine = -Infinity;
   let previousColumn = -Infinity;
   let previousSource = "";
   map.eachMapping((mapping) => {
-    assert.ok(mapping.source >= previousSource);
+    ok(mapping.source >= previousSource);
 
     if (mapping.source === previousSource) {
-      assert.ok(mapping.originalLine >= previousLine);
+      ok(mapping.originalLine >= previousLine);
 
       if (mapping.originalLine === previousLine) {
-        assert.ok(mapping.originalColumn >= previousColumn);
+        ok(mapping.originalColumn >= previousColumn);
         previousColumn = mapping.originalColumn;
       }
       else {
@@ -353,83 +356,83 @@ it('test iterating over mappings in a different order in indexed source maps', (
 });
 
 it('test that we can set the context for `this` in eachMapping', () => {
-  const map = new SourceMapConsumer(util.testMap);
+  const map = new SourceMapConsumer(testMap);
   const context = {};
   map.eachMapping(function () {
-    assert.equal(this, context);
+    equal(this, context);
   }, context);
 });
 
 it('test that we can set the context for `this` in eachMapping in indexed source maps', () => {
-  const map = new SourceMapConsumer(util.indexedTestMap);
+  const map = new SourceMapConsumer(indexedTestMap);
   const context = {};
   map.eachMapping(function () {
-    assert.equal(this, context);
+    equal(this, context);
   }, context);
 });
 
 it('test that the `sourcesContent` field has the original sources', () => {
-  const map = new SourceMapConsumer(util.testMapWithSourcesContent);
+  const map = new SourceMapConsumer(testMapWithSourcesContent);
   const sourcesContent = map.sourcesContent;
 
-  assert.equal(sourcesContent[0], ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
-  assert.equal(sourcesContent[1], ' TWO.inc = function (n) {\n   return n + 1;\n };');
-  assert.equal(sourcesContent.length, 2);
+  equal(sourcesContent[0], ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
+  equal(sourcesContent[1], ' TWO.inc = function (n) {\n   return n + 1;\n };');
+  equal(sourcesContent.length, 2);
 });
 
 it('test that we can get the original sources for the sources', () => {
-  const map = new SourceMapConsumer(util.testMapWithSourcesContent);
+  const map = new SourceMapConsumer(testMapWithSourcesContent);
   const sources = map.sources;
 
-  assert.equal(map.sourceContentFor(sources[0]), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
-  assert.equal(map.sourceContentFor(sources[1]), ' TWO.inc = function (n) {\n   return n + 1;\n };');
-  assert.equal(map.sourceContentFor("one.js"), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
-  assert.equal(map.sourceContentFor("two.js"), ' TWO.inc = function (n) {\n   return n + 1;\n };');
-  assert.throws(() => {
+  equal(map.sourceContentFor(sources[0]), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
+  equal(map.sourceContentFor(sources[1]), ' TWO.inc = function (n) {\n   return n + 1;\n };');
+  equal(map.sourceContentFor("one.js"), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
+  equal(map.sourceContentFor("two.js"), ' TWO.inc = function (n) {\n   return n + 1;\n };');
+  throws(() => {
     map.sourceContentFor("");
   }, Error);
-  assert.throws(() => {
+  throws(() => {
     map.sourceContentFor("/the/root/three.js");
   }, Error);
-  assert.throws(() => {
+  throws(() => {
     map.sourceContentFor("three.js");
   }, Error);
 });
 
 it('test that we can get the original source content with relative source paths', () => {
-  const map = new SourceMapConsumer(util.testMapRelativeSources);
+  const map = new SourceMapConsumer(testMapRelativeSources);
   const sources = map.sources;
 
-  assert.equal(map.sourceContentFor(sources[0]), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
-  assert.equal(map.sourceContentFor(sources[1]), ' TWO.inc = function (n) {\n   return n + 1;\n };');
-  assert.equal(map.sourceContentFor("one.js"), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
-  assert.equal(map.sourceContentFor("two.js"), ' TWO.inc = function (n) {\n   return n + 1;\n };');
-  assert.throws(() => {
+  equal(map.sourceContentFor(sources[0]), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
+  equal(map.sourceContentFor(sources[1]), ' TWO.inc = function (n) {\n   return n + 1;\n };');
+  equal(map.sourceContentFor("one.js"), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
+  equal(map.sourceContentFor("two.js"), ' TWO.inc = function (n) {\n   return n + 1;\n };');
+  throws(() => {
     map.sourceContentFor("");
   }, Error);
-  assert.throws(() => {
+  throws(() => {
     map.sourceContentFor("/the/root/three.js");
   }, Error);
-  assert.throws(() => {
+  throws(() => {
     map.sourceContentFor("three.js");
   }, Error);
 });
 
 it('test that we can get the original source content for the sources on an indexed source map', () => {
-  const map = new SourceMapConsumer(util.indexedTestMap);
+  const map = new SourceMapConsumer(indexedTestMap);
   const sources = map.sources;
 
-  assert.equal(map.sourceContentFor(sources[0]), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
-  assert.equal(map.sourceContentFor(sources[1]), ' TWO.inc = function (n) {\n   return n + 1;\n };');
-  assert.equal(map.sourceContentFor("one.js"), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
-  assert.equal(map.sourceContentFor("two.js"), ' TWO.inc = function (n) {\n   return n + 1;\n };');
-  assert.throws(() => {
+  equal(map.sourceContentFor(sources[0]), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
+  equal(map.sourceContentFor(sources[1]), ' TWO.inc = function (n) {\n   return n + 1;\n };');
+  equal(map.sourceContentFor("one.js"), ' ONE.foo = function (bar) {\n   return baz(bar);\n };');
+  equal(map.sourceContentFor("two.js"), ' TWO.inc = function (n) {\n   return n + 1;\n };');
+  throws(() => {
     map.sourceContentFor("");
   }, Error);
-  assert.throws(() => {
+  throws(() => {
     map.sourceContentFor("/the/root/three.js");
   }, Error);
-  assert.throws(() => {
+  throws(() => {
     map.sourceContentFor("three.js");
   }, Error);
 });
@@ -444,7 +447,7 @@ it('test hasContentsOfAllSources, single source with contents', () => {
   });
   mapWithContents.setSourceContent('foo.js', 'content of foo.js');
   const consumer = new SourceMapConsumer(mapWithContents.toJSON());
-  assert.ok(consumer.hasContentsOfAllSources());
+  ok(consumer.hasContentsOfAllSources());
 });
 
 it('test hasContentsOfAllSources, single source without contents', () => {
@@ -456,7 +459,7 @@ it('test hasContentsOfAllSources, single source without contents', () => {
     generated: { line: 1, column: 10 }
   });
   const consumer = new SourceMapConsumer(mapWithoutContents.toJSON());
-  assert.ok(!consumer.hasContentsOfAllSources());
+  ok(!consumer.hasContentsOfAllSources());
 });
 
 it('test hasContentsOfAllSources, two sources with contents', () => {
@@ -475,7 +478,7 @@ it('test hasContentsOfAllSources, two sources with contents', () => {
   mapWithBothContents.setSourceContent('foo.js', 'content of foo.js');
   mapWithBothContents.setSourceContent('bar.js', 'content of bar.js');
   const consumer = new SourceMapConsumer(mapWithBothContents.toJSON());
-  assert.ok(consumer.hasContentsOfAllSources());
+  ok(consumer.hasContentsOfAllSources());
 });
 
 it('test hasContentsOfAllSources, two sources one with and one without contents', () => {
@@ -493,7 +496,7 @@ it('test hasContentsOfAllSources, two sources one with and one without contents'
   });
   mapWithoutSomeContents.setSourceContent('foo.js', 'content of foo.js');
   const consumer = new SourceMapConsumer(mapWithoutSomeContents.toJSON());
-  assert.ok(!consumer.hasContentsOfAllSources());
+  ok(!consumer.hasContentsOfAllSources());
 });
 
 describe('test sourceRoot + generatedPositionFor', () => {
@@ -524,8 +527,8 @@ describe('test sourceRoot + generatedPositionFor', () => {
       source: 'bang.coffee'
     });
 
-    assert.equal(pos.line, 2);
-    assert.equal(pos.column, 2);
+    equal(pos.line, 2);
+    equal(pos.column, 2);
   });
 
   it('should handle with sourceRoot', () => {
@@ -535,8 +538,8 @@ describe('test sourceRoot + generatedPositionFor', () => {
       source: 'foo/bar/bang.coffee'
     });
 
-    assert.equal(pos.line, 2);
-    assert.equal(pos.column, 2);
+    equal(pos.line, 2);
+    equal(pos.column, 2);
   });
 
   it('should handle absolute case', () => {
@@ -546,8 +549,8 @@ describe('test sourceRoot + generatedPositionFor', () => {
       source: 'http://example.com/foo/bar/bang.coffee'
     });
 
-    assert.equal(pos.line, 2);
-    assert.equal(pos.column, 2);
+    equal(pos.line, 2);
+    equal(pos.column, 2);
   });
 });
 
@@ -570,8 +573,8 @@ it('test sourceRoot + generatedPositionFor for path above the root', () => {
     source: 'foo/bang.coffee'
   });
 
-  assert.equal(pos.line, 2);
-  assert.equal(pos.column, 2);
+  equal(pos.line, 2);
+  equal(pos.column, 2);
 });
 
 describe('test allGeneratedPositionsFor for line', () => {
@@ -614,11 +617,11 @@ describe('test allGeneratedPositionsFor for line', () => {
       source: 'bar.coffee'
     });
 
-    assert.equal(mappings.length, 2);
-    assert.equal(mappings[0].line, 3);
-    assert.equal(mappings[0].column, 2);
-    assert.equal(mappings[1].line, 3);
-    assert.equal(mappings[1].column, 3);
+    equal(mappings.length, 2);
+    equal(mappings[0].line, 3);
+    equal(mappings[0].column, 2);
+    equal(mappings[1].line, 3);
+    equal(mappings[1].column, 3);
   });
 
   it('#2', () => {
@@ -627,11 +630,11 @@ describe('test allGeneratedPositionsFor for line', () => {
       source: 'http://example.com/bar.coffee'
     });
 
-    assert.equal(mappings.length, 2);
-    assert.equal(mappings[0].line, 3);
-    assert.equal(mappings[0].column, 2);
-    assert.equal(mappings[1].line, 3);
-    assert.equal(mappings[1].column, 3);
+    equal(mappings.length, 2);
+    equal(mappings[0].line, 3);
+    equal(mappings[0].column, 2);
+    equal(mappings[1].line, 3);
+    equal(mappings[1].column, 3);
   });
 });
 
@@ -661,9 +664,9 @@ it('test allGeneratedPositionsFor for line fuzzy', () => {
     source: 'bar.coffee'
   });
 
-  assert.equal(mappings.length, 1);
-  assert.equal(mappings[0].line, 4);
-  assert.equal(mappings[0].column, 2);
+  equal(mappings.length, 1);
+  equal(mappings[0].line, 4);
+  equal(mappings[0].column, 2);
 });
 
 it('test allGeneratedPositionsFor for empty source map', () => {
@@ -677,7 +680,7 @@ it('test allGeneratedPositionsFor for empty source map', () => {
     source: 'bar.coffee'
   });
 
-  assert.equal(mappings.length, 0);
+  equal(mappings.length, 0);
 });
 
 it('test allGeneratedPositionsFor for column', () => {
@@ -702,11 +705,11 @@ it('test allGeneratedPositionsFor for column', () => {
     source: 'foo.coffee'
   });
 
-  assert.equal(mappings.length, 2);
-  assert.equal(mappings[0].line, 1);
-  assert.equal(mappings[0].column, 2);
-  assert.equal(mappings[1].line, 1);
-  assert.equal(mappings[1].column, 3);
+  equal(mappings.length, 2);
+  equal(mappings[0].line, 1);
+  equal(mappings[0].column, 2);
+  equal(mappings[1].line, 1);
+  equal(mappings[1].column, 3);
 });
 
 it('test allGeneratedPositionsFor for column fuzzy', () => {
@@ -731,11 +734,11 @@ it('test allGeneratedPositionsFor for column fuzzy', () => {
     source: 'foo.coffee'
   });
 
-  assert.equal(mappings.length, 2);
-  assert.equal(mappings[0].line, 1);
-  assert.equal(mappings[0].column, 2);
-  assert.equal(mappings[1].line, 1);
-  assert.equal(mappings[1].column, 3);
+  equal(mappings.length, 2);
+  equal(mappings[0].line, 1);
+  equal(mappings[0].column, 2);
+  equal(mappings[1].line, 1);
+  equal(mappings[1].column, 3);
 });
 
 it('test allGeneratedPositionsFor for column on different line fuzzy', () => {
@@ -760,7 +763,7 @@ it('test allGeneratedPositionsFor for column on different line fuzzy', () => {
     source: 'foo.coffee'
   });
 
-  assert.equal(mappings.length, 0);
+  equal(mappings.length, 0);
 });
 
 describe('test computeColumnSpans', () => {
@@ -809,8 +812,8 @@ describe('test computeColumnSpans', () => {
       source: 'foo.coffee'
     });
 
-    assert.equal(mappings.length, 1);
-    assert.equal(mappings[0].lastColumn, Infinity);
+    equal(mappings.length, 1);
+    equal(mappings[0].lastColumn, Infinity);
   });
 
   it('#2', () => {
@@ -819,10 +822,10 @@ describe('test computeColumnSpans', () => {
       source: 'foo.coffee'
     });
 
-    assert.equal(mappings.length, 3);
-    assert.equal(mappings[0].lastColumn, 9);
-    assert.equal(mappings[1].lastColumn, 19);
-    assert.equal(mappings[2].lastColumn, Infinity);
+    equal(mappings.length, 3);
+    equal(mappings[0].lastColumn, 9);
+    equal(mappings[1].lastColumn, 19);
+    equal(mappings[2].lastColumn, Infinity);
   });
 
   it('#3', () => {
@@ -831,9 +834,9 @@ describe('test computeColumnSpans', () => {
       source: 'foo.coffee'
     });
 
-    assert.equal(mappings.length, 2);
-    assert.equal(mappings[0].lastColumn, 1);
-    assert.equal(mappings[1].lastColumn, Infinity);
+    equal(mappings.length, 2);
+    equal(mappings[0].lastColumn, 1);
+    equal(mappings[1].lastColumn, Infinity);
   });
 });
 
@@ -855,9 +858,9 @@ it('test sourceRoot + originalPositionFor', () => {
   });
 
   // Should always have the prepended source root
-  assert.equal(pos.source, 'foo/bar/bang.coffee');
-  assert.equal(pos.line, 1);
-  assert.equal(pos.column, 1);
+  equal(pos.source, 'foo/bar/bang.coffee');
+  equal(pos.line, 1);
+  equal(pos.column, 1);
 });
 
 it('test github issue #56', () => {
@@ -873,8 +876,8 @@ it('test github issue #56', () => {
   map = new SourceMapConsumer(map.toString());
 
   const sources = map.sources;
-  assert.equal(sources.length, 1);
-  assert.equal(sources[0], 'http://www.example.com/original.js');
+  equal(sources.length, 1);
+  equal(sources[0], 'http://www.example.com/original.js');
 });
 
 // Was github issue #43, but that's no longer valid.
@@ -891,9 +894,9 @@ it('test source resolution with sourceMapURL', () => {
   map = new SourceMapConsumer(map.toString(), 'http://cdn.example.com');
 
   const sources = map.sources;
-  assert.equal(sources.length, 1,
+  equal(sources.length, 1,
     'Should only be one source.');
-  assert.equal(sources[0], 'http://cdn.example.com/original.js',
+  equal(sources[0], 'http://cdn.example.com/original.js',
     'Should be joined with the source map URL.');
 });
 
@@ -910,22 +913,22 @@ it('test sourceRoot prepending', () => {
   map = new SourceMapConsumer(map.toString());
 
   const sources = map.sources;
-  assert.equal(sources.length, 1,
+  equal(sources.length, 1,
     'Should only be one source.');
-  assert.equal(sources[0], 'http://example.com/foo/bar/original.js',
+  equal(sources[0], 'http://example.com/foo/bar/original.js',
     'Source include the source root.');
 });
 
 it('test indexed source map errors when sections are out of order by line', () => {
   // Make a deep copy of the indexedTestMap
-  const misorderedIndexedTestMap = JSON.parse(JSON.stringify(util.indexedTestMap));
+  const misorderedIndexedTestMap = JSON.parse(JSON.stringify(indexedTestMap));
 
   misorderedIndexedTestMap.sections[0].offset = {
     line: 2,
     column: 0
   };
 
-  assert.throws(() => {
+  throws(() => {
     new SourceMapConsumer(misorderedIndexedTestMap);
   }, Error);
 });
@@ -941,8 +944,8 @@ it('test github issue #64', () => {
     "sourcesContent": ["foo"]
   });
 
-  assert.equal(map.sourceContentFor("a"), "foo");
-  assert.equal(map.sourceContentFor("/a"), "foo");
+  equal(map.sourceContentFor("a"), "foo");
+  equal(map.sourceContentFor("/a"), "foo");
 });
 
 it('test full source content with sourceMapURL', () => {
@@ -956,7 +959,7 @@ it('test full source content with sourceMapURL', () => {
     'sourcesContent': ['yellow warbler']
   }, 'http://cdn.example.com');
 
-  assert.equal(map.sourceContentFor('http://cdn.example.com/original.js'), 'yellow warbler',
+  equal(map.sourceContentFor('http://cdn.example.com/original.js'), 'yellow warbler',
     'Source content should be found using full URL');
 });
 
@@ -972,7 +975,7 @@ it('test bug 885597', () => {
   });
 
   const source = map.sources[0];
-  assert.equal(map.sourceContentFor(source), "foo");
+  equal(map.sourceContentFor(source), "foo");
 });
 
 describe('test github issue #72, duplicate sources', () => {
@@ -990,9 +993,9 @@ describe('test github issue #72, duplicate sources', () => {
       line: 2,
       column: 2
     });
-    assert.equal(pos.source, 'http://example.com/source1.js');
-    assert.equal(pos.line, 1);
-    assert.equal(pos.column, 1);
+    equal(pos.source, 'http://example.com/source1.js');
+    equal(pos.line, 1);
+    equal(pos.column, 1);
   });
 
   it('#2', () => {
@@ -1000,9 +1003,9 @@ describe('test github issue #72, duplicate sources', () => {
       line: 4,
       column: 4
     });
-    assert.equal(pos.source, 'http://example.com/source1.js');
-    assert.equal(pos.line, 3);
-    assert.equal(pos.column, 3);
+    equal(pos.source, 'http://example.com/source1.js');
+    equal(pos.line, 3);
+    equal(pos.column, 3);
   });
 
   it('#3', () => {
@@ -1010,9 +1013,9 @@ describe('test github issue #72, duplicate sources', () => {
       line: 6,
       column: 6
     });
-    assert.equal(pos.source, 'http://example.com/source3.js');
-    assert.equal(pos.line, 5);
-    assert.equal(pos.column, 5);
+    equal(pos.source, 'http://example.com/source3.js');
+    equal(pos.line, 5);
+    equal(pos.column, 5);
   });
 });
 
@@ -1031,9 +1034,9 @@ describe('test github issue #72, duplicate names', () => {
       line: 2,
       column: 2
     });
-    assert.equal(pos.name, 'name1');
-    assert.equal(pos.line, 1);
-    assert.equal(pos.column, 1);
+    equal(pos.name, 'name1');
+    equal(pos.line, 1);
+    equal(pos.column, 1);
   });
 
   it('#2', () => {
@@ -1041,9 +1044,9 @@ describe('test github issue #72, duplicate names', () => {
       line: 4,
       column: 4
     });
-    assert.equal(pos.name, 'name1');
-    assert.equal(pos.line, 3);
-    assert.equal(pos.column, 3);
+    equal(pos.name, 'name1');
+    equal(pos.line, 3);
+    equal(pos.column, 3);
   });
 
   it('#3', () => {
@@ -1051,9 +1054,9 @@ describe('test github issue #72, duplicate names', () => {
       line: 6,
       column: 6
     });
-    assert.equal(pos.name, 'name3');
-    assert.equal(pos.line, 5);
-    assert.equal(pos.column, 5);
+    equal(pos.name, 'name3');
+    equal(pos.line, 5);
+    equal(pos.column, 5);
   });
 });
 
@@ -1081,12 +1084,12 @@ describe('test SourceMapConsumer.fromSourceMap', () => {
   });
 
   it('test map', () => {
-    assert.equal(smc.file, 'foo.js');
-    assert.equal(smc.sourceRoot, 'http://example.com/');
-    assert.equal(smc.sources.length, 2);
-    assert.equal(smc.sources[0], 'http://example.com/bar.js');
-    assert.equal(smc.sources[1], 'http://example.com/baz.js');
-    assert.equal(smc.sourceContentFor('baz.js'), 'baz.js content');
+    equal(smc.file, 'foo.js');
+    equal(smc.sourceRoot, 'http://example.com/');
+    equal(smc.sources.length, 2);
+    equal(smc.sources[0], 'http://example.com/bar.js');
+    equal(smc.sources[1], 'http://example.com/baz.js');
+    equal(smc.sourceContentFor('baz.js'), 'baz.js content');
   });
 
   it('', () => {
@@ -1094,10 +1097,10 @@ describe('test SourceMapConsumer.fromSourceMap', () => {
       line: 2,
       column: 2
     });
-    assert.equal(pos.line, 1);
-    assert.equal(pos.column, 1);
-    assert.equal(pos.source, 'http://example.com/bar.js');
-    assert.equal(pos.name, null);
+    equal(pos.line, 1);
+    equal(pos.column, 1);
+    equal(pos.source, 'http://example.com/bar.js');
+    equal(pos.name, null);
   });
 
   it('', () => {
@@ -1106,8 +1109,8 @@ describe('test SourceMapConsumer.fromSourceMap', () => {
       column: 1,
       source: 'http://example.com/bar.js'
     });
-    assert.equal(pos.line, 2);
-    assert.equal(pos.column, 2);
+    equal(pos.line, 2);
+    equal(pos.column, 2);
   });
 
   it('', () => {
@@ -1115,10 +1118,10 @@ describe('test SourceMapConsumer.fromSourceMap', () => {
       line: 4,
       column: 4
     });
-    assert.equal(pos.line, 2);
-    assert.equal(pos.column, 2);
-    assert.equal(pos.source, 'http://example.com/baz.js');
-    assert.equal(pos.name, 'dirtMcGirt');
+    equal(pos.line, 2);
+    equal(pos.column, 2);
+    equal(pos.source, 'http://example.com/baz.js');
+    equal(pos.name, 'dirtMcGirt');
   });
 
   it('', () => {
@@ -1127,8 +1130,8 @@ describe('test SourceMapConsumer.fromSourceMap', () => {
       column: 2,
       source: 'http://example.com/baz.js'
     });
-    assert.equal(pos.line, 4);
-    assert.equal(pos.column, 4);
+    equal(pos.line, 4);
+    equal(pos.column, 4);
   });
 });
 
@@ -1152,7 +1155,7 @@ it('test issue #191', () => {
   // throw.
   generator.toJSON();
 
-  assert.ok(true, "Using a SourceMapGenerator again after creating a " +
+  ok(true, "Using a SourceMapGenerator again after creating a " +
                   "SourceMapConsumer from it should not throw");
 });
 
@@ -1169,7 +1172,7 @@ it('test sources where their prefix is the source root: issue #199', () => {
 
   const consumer = new SourceMapConsumer(testSourceMap);
   const consumerHasSource = (s) => {
-    assert.ok(consumer.sourceContentFor(s));
+    ok(consumer.sourceContentFor(s));
   };
 
   consumer.sources.forEach(consumerHasSource);
@@ -1188,7 +1191,7 @@ it('test sources where their prefix is the source root and the source root is a 
 
   const consumer = new SourceMapConsumer(testSourceMap);
   const consumerHasSource = (s) => {
-    assert.ok(consumer.sourceContentFor(s));
+    ok(consumer.sourceContentFor(s));
   }
 
   consumer.sources.forEach(consumerHasSource);
@@ -1205,15 +1208,15 @@ it('test consuming names and sources that are numbers', () => {
 
   const consumer = new SourceMapConsumer(testSourceMap);
 
-  assert.equal(consumer.sources.length, 1);
-  assert.equal(consumer.sources[0], "0");
+  equal(consumer.sources.length, 1);
+  equal(consumer.sources[0], "0");
 
   let i = 0;
   consumer.eachMapping((m) => {
     i++;
-    assert.equal(m.name, "1");
+    equal(m.name, "1");
   });
-  assert.equal(i, 1);
+  equal(i, 1);
 });
 
 it('test non-normalized sourceRoot (from issue #227)', () => {
@@ -1226,7 +1229,7 @@ it('test non-normalized sourceRoot (from issue #227)', () => {
     sourceRoot: './src/',
     sourcesContent: [ 'var name = "Mark"\n' ]
   });
-  assert.equal(consumer.sourceRoot, 'src/', 'sourceRoot was normalized');
+  equal(consumer.sourceRoot, 'src/', 'sourceRoot was normalized');
   // Before the fix, this threw an exception.
   consumer.sourceContentFor(consumer.sources[0]);
 });
@@ -1242,8 +1245,8 @@ it('test webpack URL resolution', () => {
   };
   const consumer = new SourceMapConsumer(map);
 
-  assert.equal(consumer.sources.length, 1);
-  assert.equal(consumer.sources[0], "webpack:///webpack/bootstrap 67e184f9679733298d44");
+  equal(consumer.sources.length, 1);
+  equal(consumer.sources[0], "webpack:///webpack/bootstrap 67e184f9679733298d44");
 });
 
 it('test webpack URL resolution with sourceMapURL', () => {
@@ -1257,8 +1260,8 @@ it('test webpack URL resolution with sourceMapURL', () => {
   };
   const consumer = new SourceMapConsumer(map, 'http://www.example.com/q.js.map');
 
-  assert.equal(consumer.sources.length, 1);
-  assert.equal(consumer.sources[0], "webpack:///webpack/bootstrap 67e184f9679733298d44");
+  equal(consumer.sources.length, 1);
+  equal(consumer.sources[0], "webpack:///webpack/bootstrap 67e184f9679733298d44");
 });
 
 it('test relative webpack URL resolution with sourceMapURL', () => {
@@ -1272,8 +1275,8 @@ it('test relative webpack URL resolution with sourceMapURL', () => {
   };
   const consumer = new SourceMapConsumer(map, 'http://www.example.com/q.js.map');
 
-  assert.equal(consumer.sources.length, 1);
-  assert.equal(consumer.sources[0], "webpack:///webpack/bootstrap.js");
+  equal(consumer.sources.length, 1);
+  equal(consumer.sources[0], "webpack:///webpack/bootstrap.js");
 });
 
 it('test basic URL resolution with sourceMapURL', () => {
@@ -1287,8 +1290,8 @@ it('test basic URL resolution with sourceMapURL', () => {
   };
   const consumer = new SourceMapConsumer(map, 'http://www.example.com/x/q.js.map');
 
-  assert.equal(consumer.sources.length, 1);
-  assert.equal(consumer.sources[0], 'http://www.example.com/x/src/something.js');
+  equal(consumer.sources.length, 1);
+  equal(consumer.sources[0], 'http://www.example.com/x/src/something.js');
 });
 
 it('test absolute sourceURL resolution with sourceMapURL', () => {
@@ -1302,6 +1305,6 @@ it('test absolute sourceURL resolution with sourceMapURL', () => {
   };
   const consumer = new SourceMapConsumer(map, 'http://www.example.com/x/q.js.map');
 
-  assert.equal(consumer.sources.length, 1);
-  assert.equal(consumer.sources[0], 'http://www.example.com/src/something.js');
+  equal(consumer.sources.length, 1);
+  equal(consumer.sources[0], 'http://www.example.com/src/something.js');
 });

@@ -1,7 +1,7 @@
-const assert = require('assert');
-const sourceMap = require('../lib');
+import { equal } from 'assert';
+import * as sourceMap from 'source-map-js';
 
 it('test that the api is properly exposed in the top level', () => {
-  assert.equal(typeof sourceMap.SourceMapGenerator, "function");
-  assert.equal(typeof sourceMap.SourceMapConsumer, "function");
+  equal(typeof sourceMap.SourceMapGenerator, "function");
+  equal(typeof sourceMap.SourceMapConsumer, "function");
 });

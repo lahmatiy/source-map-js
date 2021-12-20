@@ -1,7 +1,6 @@
-const assert = require('assert');
-const util = require("./util");
-const { SourceMapConsumer } = require('../lib/source-map-consumer');
-const { SourceMapGenerator } = require('../lib/source-map-generator');
+import { assertMapping } from "./util.js";
+import { SourceMapConsumer } from '../lib/source-map-consumer.js';
+import { SourceMapGenerator } from '../lib/source-map-generator.js';
 
 it('test eating our own dog food', () => {
   const smg = new SourceMapGenerator({
@@ -42,53 +41,53 @@ it('test eating our own dog food', () => {
   const smc = new SourceMapConsumer(smg.toString());
 
   // Exact
-  util.assertMapping(2, 2, '/wu/tang/gza.coffee', 1, 0, null, null, smc, assert);
-  util.assertMapping(3, 2, '/wu/tang/gza.coffee', 2, 0, null, null, smc, assert);
-  util.assertMapping(4, 2, '/wu/tang/gza.coffee', 3, 0, null, null, smc, assert);
-  util.assertMapping(5, 2, '/wu/tang/gza.coffee', 4, 0, null, null, smc, assert);
-  util.assertMapping(6, 12, '/wu/tang/gza.coffee', 5, 10, null, null, smc, assert);
+  assertMapping(2, 2, '/wu/tang/gza.coffee', 1, 0, null, null, smc);
+  assertMapping(3, 2, '/wu/tang/gza.coffee', 2, 0, null, null, smc);
+  assertMapping(4, 2, '/wu/tang/gza.coffee', 3, 0, null, null, smc);
+  assertMapping(5, 2, '/wu/tang/gza.coffee', 4, 0, null, null, smc);
+  assertMapping(6, 12, '/wu/tang/gza.coffee', 5, 10, null, null, smc);
 
   // Fuzzy
 
   // Generated to original with default (glb) bias.
-  util.assertMapping(2, 0, null, null, null, null, null, smc, assert, true);
-  util.assertMapping(2, 9, '/wu/tang/gza.coffee', 1, 0, null, null, smc, assert, true);
-  util.assertMapping(3, 0, null, null, null, null, null, smc, assert, true);
-  util.assertMapping(3, 9, '/wu/tang/gza.coffee', 2, 0, null, null, smc, assert, true);
-  util.assertMapping(4, 0, null, null, null, null, null, smc, assert, true);
-  util.assertMapping(4, 9, '/wu/tang/gza.coffee', 3, 0, null, null, smc, assert, true);
-  util.assertMapping(5, 0, null, null, null, null, null, smc, assert, true);
-  util.assertMapping(5, 9, '/wu/tang/gza.coffee', 4, 0, null, null, smc, assert, true);
-  util.assertMapping(6, 0, null, null, null, null, null, smc, assert, true);
-  util.assertMapping(6, 9, null, null, null, null, null, smc, assert, true);
-  util.assertMapping(6, 13, '/wu/tang/gza.coffee', 5, 10, null, null, smc, assert, true);
+  assertMapping(2, 0, null, null, null, null, null, smc, true);
+  assertMapping(2, 9, '/wu/tang/gza.coffee', 1, 0, null, null, smc, true);
+  assertMapping(3, 0, null, null, null, null, null, smc, true);
+  assertMapping(3, 9, '/wu/tang/gza.coffee', 2, 0, null, null, smc, true);
+  assertMapping(4, 0, null, null, null, null, null, smc, true);
+  assertMapping(4, 9, '/wu/tang/gza.coffee', 3, 0, null, null, smc, true);
+  assertMapping(5, 0, null, null, null, null, null, smc, true);
+  assertMapping(5, 9, '/wu/tang/gza.coffee', 4, 0, null, null, smc, true);
+  assertMapping(6, 0, null, null, null, null, null, smc, true);
+  assertMapping(6, 9, null, null, null, null, null, smc, true);
+  assertMapping(6, 13, '/wu/tang/gza.coffee', 5, 10, null, null, smc, true);
 
   // Generated to original with lub bias.
-  util.assertMapping(2, 0, '/wu/tang/gza.coffee', 1, 0, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(2, 9, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(3, 0, '/wu/tang/gza.coffee', 2, 0, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(3, 9, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(4, 0, '/wu/tang/gza.coffee', 3, 0, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(4, 9, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(5, 0, '/wu/tang/gza.coffee', 4, 0, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(5, 9, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(6, 0, '/wu/tang/gza.coffee', 5, 10, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(6, 9, '/wu/tang/gza.coffee', 5, 10, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
-  util.assertMapping(6, 13, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, true);
+  assertMapping(2, 0, '/wu/tang/gza.coffee', 1, 0, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(2, 9, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(3, 0, '/wu/tang/gza.coffee', 2, 0, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(3, 9, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(4, 0, '/wu/tang/gza.coffee', 3, 0, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(4, 9, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(5, 0, '/wu/tang/gza.coffee', 4, 0, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(5, 9, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(6, 0, '/wu/tang/gza.coffee', 5, 10, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(6, 9, '/wu/tang/gza.coffee', 5, 10, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
+  assertMapping(6, 13, null, null, null, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, true);
 
   // Original to generated with default (glb) bias
-  util.assertMapping(2, 2, '/wu/tang/gza.coffee', 1, 1, null, null, smc, assert, null, true);
-  util.assertMapping(3, 2, '/wu/tang/gza.coffee', 2, 3, null, null, smc, assert, null, true);
-  util.assertMapping(4, 2, '/wu/tang/gza.coffee', 3, 6, null, null, smc, assert, null, true);
-  util.assertMapping(5, 2, '/wu/tang/gza.coffee', 4, 9, null, null, smc, assert, null, true);
-  util.assertMapping(5, 2, '/wu/tang/gza.coffee', 5, 9, null, null, smc, assert, null, true);
-  util.assertMapping(6, 12, '/wu/tang/gza.coffee', 6, 19, null, null, smc, assert, null, true);
+  assertMapping(2, 2, '/wu/tang/gza.coffee', 1, 1, null, null, smc, null, true);
+  assertMapping(3, 2, '/wu/tang/gza.coffee', 2, 3, null, null, smc, null, true);
+  assertMapping(4, 2, '/wu/tang/gza.coffee', 3, 6, null, null, smc, null, true);
+  assertMapping(5, 2, '/wu/tang/gza.coffee', 4, 9, null, null, smc, null, true);
+  assertMapping(5, 2, '/wu/tang/gza.coffee', 5, 9, null, null, smc, null, true);
+  assertMapping(6, 12, '/wu/tang/gza.coffee', 6, 19, null, null, smc, null, true);
 
   // Original to generated with lub bias.
-  util.assertMapping(3, 2, '/wu/tang/gza.coffee', 1, 1, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, null, true);
-  util.assertMapping(4, 2, '/wu/tang/gza.coffee', 2, 3, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, null, true);
-  util.assertMapping(5, 2, '/wu/tang/gza.coffee', 3, 6, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, null, true);
-  util.assertMapping(6, 12, '/wu/tang/gza.coffee', 4, 9, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, null, true);
-  util.assertMapping(6, 12, '/wu/tang/gza.coffee', 5, 9, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, null, true);
-  util.assertMapping(null, null, '/wu/tang/gza.coffee', 6, 19, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, assert, null, true);
+  assertMapping(3, 2, '/wu/tang/gza.coffee', 1, 1, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, null, true);
+  assertMapping(4, 2, '/wu/tang/gza.coffee', 2, 3, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, null, true);
+  assertMapping(5, 2, '/wu/tang/gza.coffee', 3, 6, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, null, true);
+  assertMapping(6, 12, '/wu/tang/gza.coffee', 4, 9, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, null, true);
+  assertMapping(6, 12, '/wu/tang/gza.coffee', 5, 9, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, null, true);
+  assertMapping(null, null, '/wu/tang/gza.coffee', 6, 19, null, SourceMapConsumer.LEAST_UPPER_BOUND, smc, null, true);
 });
