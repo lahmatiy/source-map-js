@@ -43,34 +43,44 @@
     "Gary Ye <garysye@gmail.com>",
     "Nicolas Lalevée <nicolas.lalevee@hibnet.org>"
   ],
-  "repository": "7rulnik/source-map",
+  "license": "BSD-3-Clause",
+  "repository": "7rulnik/source-map-js",
   "type": "module",
-  "main": "./lib/index.js",
+  "main": "./cjs/index.cjs",
   "exports": {
     ".": {
-      "import": "./lib/index.js"
+      "import": "./lib/index.js",
+      "require": "./lib/index.cjs"
     },
     "./package.json": "./package.json"
   },
   "typings": "source-map.d.ts",
   "files": [
-    "source-map.d.ts",
-    "lib"
+    "cjs",
+    "lib",
+    "source-map.d.ts"
   ],
   "engines": {
-    "node": ">=0.10.0"
+    "node": "^10 || ^12.20.0 || ^14.13.0 || >=15.0.0",
+    "npm": ">=7.0.0"
   },
-  "license": "BSD-3-Clause",
   "scripts": {
     "lint": "eslint lib test",
     "test": "mocha test --reporter ${REPORTER:-progress}",
-    "toc": "doctoc --title '## Table of Contents' README.md && doctoc --title '## Table of Contents' CONTRIBUTING.md"
+    "test:cjs": "mocha cjs-test --reporter ${REPORTER:-progress}",
+    "build": "npm run esm-to-cjs",
+    "build-and-test": "npm run esm-to-cjs-and-test",
+    "esm-to-cjs": "node scripts/esm-to-cjs.cjs",
+    "esm-to-cjs-and-test": "npm run esm-to-cjs && npm run test:cjs",
+    "toc": "doctoc --title '## Table of Contents' README.md && doctoc --title '## Table of Contents' CONTRIBUTING.md",
+    "prepublishOnly": "npm run lint && npm test && npm run build-and-test"
   },
   "devDependencies": {
     "clean-publish": "^3.1.0",
     "doctoc": "^0.15.0",
     "eslint": "^7.24.0",
-    "mocha": "^9.1.2"
+    "mocha": "^9.1.2",
+    "rollup": "^2.61.1"
   },
   "clean-publish": {
     "cleanDocs": true
