@@ -1,7 +1,8 @@
 *.iml
 *.log
 .idea
-node_modules
-dist
 cjs
 cjs-test
+coverage
+dist
+node_modules
