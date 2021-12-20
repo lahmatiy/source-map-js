@@ -82,7 +82,7 @@
     "doctoc": "^0.15.0",
     "eslint": "^7.24.0",
     "mocha": "^9.1.2",
-    "rollup": "^2.61.1"
+    "rollup": "~2.60.2"
   },
   "clean-publish": {
     "cleanDocs": true
